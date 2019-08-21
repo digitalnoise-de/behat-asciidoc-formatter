@@ -5,16 +5,25 @@ namespace Digitalnoise\BehatAsciiDocFormatter\Tests\Printer;
 
 use Behat\Testwork\Output\Printer\OutputPrinter;
 
+/**
+ * Class InMemoryOutputPrinter
+ *
+ * @author Philip Weinke <philip.weinke@digitalnoise.de>
+ */
 class InMemoryOutputPrinter implements OutputPrinter
 {
     private $output = '';
 
-    public function setOutputPath($path)
-    {
-    }
+    private $outputPath = '';
 
     public function getOutputPath()
     {
+        return $this->outputPath;
+    }
+
+    public function setOutputPath($path)
+    {
+        $this->outputPath = $path;
     }
 
     public function setOutputStyles(array $styles)
@@ -23,6 +32,7 @@ class InMemoryOutputPrinter implements OutputPrinter
 
     public function getOutputStyles()
     {
+        return [];
     }
 
     public function setOutputDecorated($decorated)
