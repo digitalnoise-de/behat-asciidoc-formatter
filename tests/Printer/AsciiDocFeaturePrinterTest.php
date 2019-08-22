@@ -54,13 +54,13 @@ class AsciiDocFeaturePrinterTest extends TestCase
         self::assertEquals("== feature/my-feature.feature\n", $this->outputPrinter->getOutput());
     }
 
-    public function test_print_header_should_print_single_line_of_formatted_tags()
+    public function test_print_header_should_print_single_line_of_formatted_tags_with_icon()
     {
         $feature = $this->createFeatureNode('My Feature', '', ['ui', 'registration']);
 
         $this->printer->printHeader($this->formatter, $feature);
 
-        self::assertEquals("== My Feature\n[tag]#ui# [tag]#registration#\n\n", $this->outputPrinter->getOutput());
+        self::assertEquals("== My Feature\nicon:tags[] ui registration\n\n", $this->outputPrinter->getOutput());
     }
 
     public function test_print_header_should_print_description_as_a_block()

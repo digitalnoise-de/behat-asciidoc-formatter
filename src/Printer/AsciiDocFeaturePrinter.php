@@ -51,27 +51,9 @@ class AsciiDocFeaturePrinter implements FeaturePrinter
     private function printTags(OutputPrinter $printer, FeatureNode $feature): void
     {
         if ($feature instanceof TaggedNodeInterface && $feature->hasTags()) {
-            $printer->writeln($this->formatTags($feature->getTags()));
+            $printer->writeln(sprintf('icon:tags[] %s', implode(' ', $feature->getTags())));
             $printer->writeln();
         }
-    }
-
-    /**
-     * @param array $tags
-     *
-     * @return string
-     */
-    private function formatTags(array $tags): string
-    {
-        return implode(
-            ' ',
-            array_map(
-                function (string $tag) {
-                    return sprintf('[tag]#%s#', $tag);
-                },
-                $tags
-            )
-        );
     }
 
     /**

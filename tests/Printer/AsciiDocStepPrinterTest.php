@@ -86,14 +86,20 @@ class AsciiDocStepPrinterTest extends TestCase
         );
     }
 
-    public function test_failed_step_should_be_highlighted_red()
+    public function test_failed_step_should_be_highlighted_red_and_wrapped_in_a_warning_block()
     {
         $step       = new StepNode('Given', 'there is a test', [], 1);
         $stepResult = $this->createResultMock(false, StepResult::FAILED);
 
         $this->printer->printStep($this->formatter, $this->scenario, $step, $stepResult);
 
-        self::assertEquals("[red]#*Given* there is a test# +\n", $this->outputPrinter->getOutput());
+        self::assertEquals(
+            "[WARNING]\n" .
+            "====\n" .
+            "[red]#*Given* there is a test# +\n" .
+            "====\n",
+            $this->outputPrinter->getOutput()
+        );
     }
 
     public function test_undefined_step_should_be_highlighted_yellow()

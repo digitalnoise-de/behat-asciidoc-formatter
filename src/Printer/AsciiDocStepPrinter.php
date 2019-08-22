@@ -28,8 +28,22 @@ class AsciiDocStepPrinter implements StepPrinter
     {
         $printer = $formatter->getOutputPrinter();
 
+        $this->printBlockStart($printer, $result);
         $this->printText($printer, $step, $result);
         $this->printArguments($printer, $step);
+        $this->printBlockEnd($printer, $result);
+    }
+
+    /**
+     * @param OutputPrinter $printer
+     * @param StepResult    $stepResult
+     */
+    public function printBlockStart(OutputPrinter $printer, StepResult $stepResult): void
+    {
+        if ($stepResult->getResultCode() === StepResult::FAILED) {
+            $printer->writeln('[WARNING]');
+            $printer->writeln('====');
+        }
     }
 
     /**
@@ -92,5 +106,16 @@ class AsciiDocStepPrinter implements StepPrinter
         }
 
         $printer->writeln('|===');
+    }
+
+    /**
+     * @param OutputPrinter $printer
+     * @param StepResult    $stepResult
+     */
+    public function printBlockEnd(OutputPrinter $printer, StepResult $stepResult): void
+    {
+        if ($stepResult->getResultCode() === StepResult::FAILED) {
+            $printer->writeln('====');
+        }
     }
 }
