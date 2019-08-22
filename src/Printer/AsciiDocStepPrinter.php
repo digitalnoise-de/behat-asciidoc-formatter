@@ -11,6 +11,7 @@ use Behat\Gherkin\Node\StepNode;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Testwork\Output\Formatter;
 use Behat\Testwork\Output\Printer\OutputPrinter;
+use Behat\Testwork\Tester\Result\ExceptionResult;
 
 /**
  * Class AsciiDocStepPrinter
@@ -33,6 +34,7 @@ class AsciiDocStepPrinter implements StepPrinter
         $this->printText($printer, $step, $result);
         $this->printArguments($printer, $step);
         $this->printStdOut($printer, $result);
+        $this->printException($printer, $result);
         $this->printBlockEnd($printer, $result);
     }
 
@@ -46,6 +48,11 @@ class AsciiDocStepPrinter implements StepPrinter
             $printer->writeln('[WARNING]');
             $printer->writeln('====');
         }
+
+        if ($stepResult->getResultCode() === StepResult::PENDING) {
+            $printer->writeln('[CAUTION]');
+            $printer->writeln('====');
+        }
     }
 
     /**
@@ -55,7 +62,8 @@ class AsciiDocStepPrinter implements StepPrinter
      */
     private function printText(OutputPrinter $printer, StepNode $step, StepResult $result): void
     {
-        $printer->writeln(sprintf($this->getTemplateForResult($result), $step->getKeyword(), $step->getText()));
+        $printer->write($this->formatText(sprintf('*%s* %s', $step->getKeyword(), $step->getText()), $result));
+        $printer->writeln(' +');
     }
 
     /**
@@ -63,21 +71,36 @@ class AsciiDocStepPrinter implements StepPrinter
      *
      * @return string
      */
-    private function getTemplateForResult(StepResult $result): string
+    private function formatText(string $text, StepResult $result): string
+    {
+        $role = $this->getRole($result);
+        if ($role === null) {
+            return $text;
+        }
+
+        return sprintf('[%s]#%s#', $role, $text);
+    }
+
+    /**
+     * @param StepResult $result
+     *
+     * @return string|null
+     */
+    private function getRole(StepResult $result): ?string
     {
         switch ($result->getResultCode()) {
             case StepResult::FAILED:
-                return '[red]#*%s* %s# +';
+                return 'red';
 
             case StepResult::PENDING:
             case StepResult::UNDEFINED:
-                return '[yellow]#*%s* %s# +';
+                return 'yellow';
 
             case StepResult::SKIPPED:
-                return '[blue]#*%s* %s# +';
+                return 'blue';
 
             default:
-                return '*%s* %s +';
+                return null;
         }
     }
 
@@ -127,9 +150,22 @@ class AsciiDocStepPrinter implements StepPrinter
      * @param OutputPrinter $printer
      * @param StepResult    $stepResult
      */
+    private function printException(OutputPrinter $printer, StepResult $stepResult)
+    {
+        if ($stepResult instanceof ExceptionResult && $stepResult->hasException()) {
+            $printer->writeln('----');
+            $printer->writeln($stepResult->getException()->getMessage());
+            $printer->writeln('----');
+        }
+    }
+
+    /**
+     * @param OutputPrinter $printer
+     * @param StepResult    $stepResult
+     */
     private function printBlockEnd(OutputPrinter $printer, StepResult $stepResult): void
     {
-        if ($stepResult->getResultCode() === StepResult::FAILED) {
+        if (in_array($stepResult->getResultCode(), [StepResult::PENDING, StepResult::FAILED])) {
             $printer->writeln('====');
         }
     }

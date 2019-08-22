@@ -102,7 +102,7 @@ class AsciiDocStepPrinterTest extends TestCase
         );
     }
 
-    public function test_failed_step_should_be_highlighted_red_and_wrapped_in_a_warning_block()
+    public function test_failed_step_should_be_printed_red_and_wrapped_in_a_warning_block_with_the_exception_message()
     {
         $step       = new StepNode('Given', 'there is a test', [], 1);
         $stepResult = $this->createExecutedStepResult(new Exception('Exception message'));
@@ -113,6 +113,9 @@ class AsciiDocStepPrinterTest extends TestCase
             "[WARNING]\n" .
             "====\n" .
             "[red]#*Given* there is a test# +\n" .
+            "----\n" .
+            "Exception message\n" .
+            "----\n" .
             "====\n",
             $this->outputPrinter->getOutput()
         );
@@ -128,14 +131,24 @@ class AsciiDocStepPrinterTest extends TestCase
         self::assertEquals("[yellow]#*Given* there is a test# +\n", $this->outputPrinter->getOutput());
     }
 
-    public function test_pending_step_should_be_highlighted_yellow()
+    public function test_pending_step_should_be_printed_yellow_and_wrapped_in_a_caution_block_with_the_exception_message(
+    )
     {
         $step       = new StepNode('Given', 'there is a test', [], 1);
-        $stepResult = $this->createExecutedStepResult(new PendingException());
+        $stepResult = $this->createExecutedStepResult(new PendingException('Pending message'));
 
         $this->printer->printStep($this->formatter, $this->scenario, $step, $stepResult);
 
-        self::assertEquals("[yellow]#*Given* there is a test# +\n", $this->outputPrinter->getOutput());
+        self::assertEquals(
+            "[CAUTION]\n" .
+            "====\n" .
+            "[yellow]#*Given* there is a test# +\n" .
+            "----\n" .
+            "Pending message\n" .
+            "----\n" .
+            "====\n",
+            $this->outputPrinter->getOutput()
+        );
     }
 
     public function test_skipped_step_should_be_highlighted_blue()
