@@ -8,4 +8,5 @@ install:
     - composer update --prefer-dist --no-progress --no-suggest --ansi
 
 script:
+    - vendor/bin/parallel-lint src/ tests/
     - vendor/bin/phpunit
