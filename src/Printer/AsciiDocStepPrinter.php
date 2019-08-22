@@ -40,7 +40,7 @@ class AsciiDocStepPrinter implements StepPrinter
      * @param OutputPrinter $printer
      * @param StepResult    $stepResult
      */
-    public function printBlockStart(OutputPrinter $printer, StepResult $stepResult): void
+    private function printBlockStart(OutputPrinter $printer, StepResult $stepResult): void
     {
         if ($stepResult->getResultCode() === StepResult::FAILED) {
             $printer->writeln('[WARNING]');
@@ -127,7 +127,7 @@ class AsciiDocStepPrinter implements StepPrinter
      * @param OutputPrinter $printer
      * @param StepResult    $stepResult
      */
-    public function printBlockEnd(OutputPrinter $printer, StepResult $stepResult): void
+    private function printBlockEnd(OutputPrinter $printer, StepResult $stepResult): void
     {
         if ($stepResult->getResultCode() === StepResult::FAILED) {
             $printer->writeln('====');
