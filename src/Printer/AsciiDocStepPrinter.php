@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Digitalnoise\BehatAsciiDocFormatter\Printer;
 
 use Behat\Behat\Output\Node\Printer\StepPrinter;
+use Behat\Behat\Tester\Result\ExecutedStepResult;
 use Behat\Behat\Tester\Result\StepResult;
 use Behat\Gherkin\Node\ScenarioLikeInterface as Scenario;
 use Behat\Gherkin\Node\StepNode;
@@ -31,6 +32,7 @@ class AsciiDocStepPrinter implements StepPrinter
         $this->printBlockStart($printer, $result);
         $this->printText($printer, $step, $result);
         $this->printArguments($printer, $step);
+        $this->printStdOut($printer, $result);
         $this->printBlockEnd($printer, $result);
     }
 
@@ -106,6 +108,19 @@ class AsciiDocStepPrinter implements StepPrinter
         }
 
         $printer->writeln('|===');
+    }
+
+    /**
+     * @param OutputPrinter $printer
+     * @param StepResult    $stepResult
+     */
+    private function printStdOut(OutputPrinter $printer, StepResult $stepResult): void
+    {
+        if ($stepResult instanceof ExecutedStepResult && $stepResult->getCallResult()->hasStdOut()) {
+            $printer->writeln('----');
+            $printer->writeln($stepResult->getCallResult()->getStdOut());
+            $printer->writeln('----');
+        }
     }
 
     /**

@@ -3,10 +3,14 @@ declare(strict_types=1);
 
 namespace Digitalnoise\BehatAsciiDocFormatter\Tests\Printer;
 
+use Behat\Behat\Definition\SearchResult;
+use Behat\Behat\Tester\Result\ExecutedStepResult;
 use Behat\Behat\Tester\Result\StepResult;
 use Behat\Gherkin\Node\ScenarioNode;
 use Behat\Gherkin\Node\StepNode;
 use Behat\Gherkin\Node\TableNode;
+use Behat\Testwork\Call\Call;
+use Behat\Testwork\Call\CallResult;
 use Behat\Testwork\Output\Formatter;
 use Digitalnoise\BehatAsciiDocFormatter\Printer\AsciiDocStepPrinter;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -82,6 +86,24 @@ class AsciiDocStepPrinterTest extends TestCase
             "| Jack | Jackson | jack@jackson.test\n" .
             "| Peter | Peterson | peter@peterson.test\n" .
             "|===\n",
+            $this->outputPrinter->getOutput()
+        );
+    }
+
+    public function test_print_step_should_print_stdout()
+    {
+        $step       = new StepNode('Given', 'there is a test', [], 1);
+        $callResult = new CallResult($this->createMock(Call::class), '', null, "Hello\nWorld");
+        $stepResult = new ExecutedStepResult(new SearchResult(), $callResult);
+
+        $this->printer->printStep($this->formatter, $this->scenario, $step, $stepResult);
+
+        self::assertEquals(
+            "*Given* there is a test +\n" .
+            "----\n" .
+            "Hello\n" .
+            "World\n" .
+            "----\n",
             $this->outputPrinter->getOutput()
         );
     }
