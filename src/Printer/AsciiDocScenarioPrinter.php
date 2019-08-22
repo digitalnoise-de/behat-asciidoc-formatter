@@ -23,7 +23,9 @@ class AsciiDocScenarioPrinter implements ScenarioPrinter
      */
     public function printHeader(Formatter $formatter, FeatureNode $feature, Scenario $scenario)
     {
-        $formatter->getOutputPrinter()->writeln(sprintf('=== %s', $scenario->getTitle()));
+        $printer = $formatter->getOutputPrinter();
+        $printer->writeln(sprintf('=== %s', $scenario->getTitle()));
+        $printer->writeln();
     }
 
     /**
@@ -32,6 +34,6 @@ class AsciiDocScenarioPrinter implements ScenarioPrinter
      */
     public function printFooter(Formatter $formatter, TestResult $result)
     {
-
+        $formatter->getOutputPrinter()->writeln();
     }
 }

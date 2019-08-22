@@ -12,6 +12,7 @@ use Behat\Testwork\ServiceContainer\ExtensionManager;
 use Digitalnoise\BehatAsciiDocFormatter\EventListener\AsciiDocEventListener;
 use Digitalnoise\BehatAsciiDocFormatter\Printer\AsciiDocFeaturePrinter;
 use Digitalnoise\BehatAsciiDocFormatter\Printer\AsciiDocScenarioPrinter;
+use Digitalnoise\BehatAsciiDocFormatter\Printer\AsciiDocStepPrinter;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -56,6 +57,7 @@ class Extension implements BehatExtension
                     [
                         new Definition(AsciiDocFeaturePrinter::class),
                         new Definition(AsciiDocScenarioPrinter::class),
+                        new Definition(AsciiDocStepPrinter::class),
                     ]
                 ),
             ]

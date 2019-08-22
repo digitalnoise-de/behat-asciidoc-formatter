@@ -6,6 +6,7 @@ namespace Digitalnoise\BehatAsciiDocFormatter\Tests\Printer;
 use Behat\Gherkin\Node\FeatureNode;
 use Behat\Gherkin\Node\ScenarioNode;
 use Behat\Testwork\Output\Formatter;
+use Behat\Testwork\Tester\Result\TestResult;
 use Digitalnoise\BehatAsciiDocFormatter\Printer\AsciiDocScenarioPrinter;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -39,7 +40,16 @@ class AsciiDocScenarioPrinterTest extends TestCase
 
         $this->printer->printHeader($this->formatter, $feature, $scenario);
 
-        self::assertEquals("=== My Scenario\n", $this->outputPrinter->getOutput());
+        self::assertEquals("=== My Scenario\n\n", $this->outputPrinter->getOutput());
+    }
+
+    public function test_print_footer_should_print_a_newline()
+    {
+        $result = $this->createMock(TestResult::class);
+
+        $this->printer->printFooter($this->formatter, $result);
+
+        self::assertEquals("\n", $this->outputPrinter->getOutput());
     }
 
     protected function setUp()

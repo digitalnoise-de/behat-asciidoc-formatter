@@ -60,7 +60,7 @@ class AsciiDocFeaturePrinterTest extends TestCase
 
         $this->printer->printHeader($this->formatter, $feature);
 
-        self::assertEquals("== My Feature\n[tag]#ui# [tag]#registration#\n", $this->outputPrinter->getOutput());
+        self::assertEquals("== My Feature\n[tag]#ui# [tag]#registration#\n\n", $this->outputPrinter->getOutput());
     }
 
     public function test_print_header_should_print_description_as_a_block()

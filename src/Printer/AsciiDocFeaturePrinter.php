@@ -52,6 +52,7 @@ class AsciiDocFeaturePrinter implements FeaturePrinter
     {
         if ($feature instanceof TaggedNodeInterface && $feature->hasTags()) {
             $printer->writeln($this->formatTags($feature->getTags()));
+            $printer->writeln();
         }
     }
 
