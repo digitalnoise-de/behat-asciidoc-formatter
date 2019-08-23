@@ -40,7 +40,7 @@ class AsciiDocScenarioPrinterTest extends TestCase
 
         $this->printer->printHeader($this->formatter, $feature, $scenario);
 
-        self::assertEquals("=== My Scenario\n\n", $this->outputPrinter->getOutput());
+        self::assertEquals("==== My Scenario\n\n", $this->outputPrinter->getOutput());
     }
 
     public function test_print_footer_should_print_a_newline()

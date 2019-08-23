@@ -24,7 +24,7 @@ class AsciiDocScenarioPrinter implements ScenarioPrinter
     public function printHeader(Formatter $formatter, FeatureNode $feature, Scenario $scenario)
     {
         $printer = $formatter->getOutputPrinter();
-        $printer->writeln(sprintf('=== %s', $scenario->getTitle()));
+        $printer->writeln(sprintf('==== %s', $scenario->getTitle()));
         $printer->writeln();
     }
 

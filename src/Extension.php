@@ -13,6 +13,7 @@ use Digitalnoise\BehatAsciiDocFormatter\EventListener\AsciiDocEventListener;
 use Digitalnoise\BehatAsciiDocFormatter\Printer\AsciiDocFeaturePrinter;
 use Digitalnoise\BehatAsciiDocFormatter\Printer\AsciiDocScenarioPrinter;
 use Digitalnoise\BehatAsciiDocFormatter\Printer\AsciiDocStepPrinter;
+use Digitalnoise\BehatAsciiDocFormatter\Printer\AsciiDocSuitePrinter;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -55,6 +56,7 @@ class Extension implements BehatExtension
                 new Definition(
                     AsciiDocEventListener::class,
                     [
+                        new Definition(AsciiDocSuitePrinter::class),
                         new Definition(AsciiDocFeaturePrinter::class),
                         new Definition(AsciiDocScenarioPrinter::class),
                         new Definition(AsciiDocStepPrinter::class),

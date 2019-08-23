@@ -37,7 +37,7 @@ class AsciiDocFeaturePrinterTest extends TestCase
 
         $this->printer->printHeader($this->formatter, $feature);
 
-        self::assertEquals("== My Feature\n", $this->outputPrinter->getOutput());
+        self::assertEquals("=== My Feature\n", $this->outputPrinter->getOutput());
     }
 
     private function createFeatureNode($title, $description = '', array $tags = []): FeatureNode
@@ -51,7 +51,7 @@ class AsciiDocFeaturePrinterTest extends TestCase
 
         $this->printer->printHeader($this->formatter, $feature);
 
-        self::assertEquals("== feature/my-feature.feature\n", $this->outputPrinter->getOutput());
+        self::assertEquals("=== feature/my-feature.feature\n", $this->outputPrinter->getOutput());
     }
 
     public function test_print_header_should_print_single_line_of_formatted_tags_with_icon()
@@ -60,7 +60,7 @@ class AsciiDocFeaturePrinterTest extends TestCase
 
         $this->printer->printHeader($this->formatter, $feature);
 
-        self::assertEquals("== My Feature\nicon:tags[] ui registration\n\n", $this->outputPrinter->getOutput());
+        self::assertEquals("=== My Feature\nicon:tags[] ui registration\n\n", $this->outputPrinter->getOutput());
     }
 
     public function test_print_header_should_print_description_as_a_block()
@@ -70,7 +70,7 @@ class AsciiDocFeaturePrinterTest extends TestCase
         $this->printer->printHeader($this->formatter, $feature);
 
         self::assertEquals(
-            "== My Feature\n****\nMultiline +\nFeature +\nDescription\n****\n",
+            "=== My Feature\n****\nMultiline +\nFeature +\nDescription\n****\n",
             $this->outputPrinter->getOutput()
         );
     }
