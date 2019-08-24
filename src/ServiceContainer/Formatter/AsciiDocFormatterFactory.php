@@ -188,7 +188,7 @@ class AsciiDocFormatterFactory implements FormatterFactory
      *
      * @return Definition
      */
-    private function rearrangeBackgroundEvents(Reference $listener): void
+    private function rearrangeBackgroundEvents(Reference $listener): Definition
     {
         return new Definition(
             FirstBackgroundFiresFirstListener::class,
