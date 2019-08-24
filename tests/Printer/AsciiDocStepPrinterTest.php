@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Digitalnoise\BehatAsciiDocFormatter\Tests\Printer;
+namespace Digitalnoise\Behat\AsciiDocFormatter\Tests\Printer;
 
 use Behat\Behat\Definition\SearchResult;
 use Behat\Behat\Tester\Exception\PendingException;
@@ -14,11 +14,14 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Testwork\Call\Call;
 use Behat\Testwork\Call\CallResult;
 use Behat\Testwork\Output\Formatter;
-use Digitalnoise\BehatAsciiDocFormatter\Printer\AsciiDocStepPrinter;
+use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocStepPrinter;
 use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @author Philip Weinke <philip.weinke@digitalnoise.de>
+ */
 class AsciiDocStepPrinterTest extends TestCase
 {
     /**

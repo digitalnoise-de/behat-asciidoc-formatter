@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Digitalnoise\BehatAsciiDocFormatter\Printer;
+namespace Digitalnoise\Behat\AsciiDocFormatter\Printer;
 
 use Behat\Behat\Output\Node\Printer\StepPrinter;
 use Behat\Behat\Tester\Result\ExecutedStepResult;
@@ -14,8 +14,6 @@ use Behat\Testwork\Output\Printer\OutputPrinter;
 use Behat\Testwork\Tester\Result\ExceptionResult;
 
 /**
- * Class AsciiDocStepPrinter
- *
  * @author Philip Weinke <philip.weinke@digitalnoise.de>
  */
 class AsciiDocStepPrinter implements StepPrinter
@@ -67,6 +65,7 @@ class AsciiDocStepPrinter implements StepPrinter
     }
 
     /**
+     * @param string     $text
      * @param StepResult $result
      *
      * @return string
@@ -150,7 +149,7 @@ class AsciiDocStepPrinter implements StepPrinter
      * @param OutputPrinter $printer
      * @param StepResult    $stepResult
      */
-    private function printException(OutputPrinter $printer, StepResult $stepResult)
+    private function printException(OutputPrinter $printer, StepResult $stepResult): void
     {
         if ($stepResult instanceof ExceptionResult && $stepResult->hasException()) {
             $printer->writeln('----');

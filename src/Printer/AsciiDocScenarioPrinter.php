@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Digitalnoise\BehatAsciiDocFormatter\Printer;
+namespace Digitalnoise\Behat\AsciiDocFormatter\Printer;
 
 use Behat\Behat\Output\Node\Printer\ScenarioPrinter;
 use Behat\Gherkin\Node\FeatureNode;
@@ -10,8 +10,6 @@ use Behat\Testwork\Output\Formatter;
 use Behat\Testwork\Tester\Result\TestResult;
 
 /**
- * Class AsciiDocScenarioPrinter
- *
  * @author Philip Weinke <philip.weinke@digitalnoise.de>
  */
 class AsciiDocScenarioPrinter implements ScenarioPrinter
@@ -24,7 +22,13 @@ class AsciiDocScenarioPrinter implements ScenarioPrinter
     public function printHeader(Formatter $formatter, FeatureNode $feature, Scenario $scenario)
     {
         $printer = $formatter->getOutputPrinter();
-        $printer->writeln(sprintf('==== %s', $scenario->getTitle()));
+
+        $title = $scenario->getTitle();
+        if (empty($title)) {
+            $title = sprintf('%s:%s', $feature->getFile(), $scenario->getLine());
+        }
+
+        $printer->writeln(sprintf('==== %s', $title));
         $printer->writeln();
     }
 

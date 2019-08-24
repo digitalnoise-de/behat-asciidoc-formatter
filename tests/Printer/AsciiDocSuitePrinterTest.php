@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace Digitalnoise\BehatAsciiDocFormatter\Tests\Printer;
+namespace Digitalnoise\Behat\AsciiDocFormatter\Tests\Printer;
 
 use Behat\Testwork\Output\Formatter;
 use Behat\Testwork\Suite\GenericSuite;
-use Digitalnoise\BehatAsciiDocFormatter\Printer\AsciiDocSuitePrinter;
+use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocSuitePrinter;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 

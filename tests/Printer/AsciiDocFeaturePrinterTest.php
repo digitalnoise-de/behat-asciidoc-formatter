@@ -1,17 +1,15 @@
 <?php
 declare(strict_types=1);
 
-namespace Digitalnoise\BehatAsciiDocFormatter\Tests\Printer;
+namespace Digitalnoise\Behat\AsciiDocFormatter\Tests\Printer;
 
 use Behat\Gherkin\Node\FeatureNode;
 use Behat\Testwork\Output\Formatter;
-use Digitalnoise\BehatAsciiDocFormatter\Printer\AsciiDocFeaturePrinter;
+use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocFeaturePrinter;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class AsciiDocFeaturePrinterTest
- *
  * @author Philip Weinke <philip.weinke@digitalnoise.de>
  */
 class AsciiDocFeaturePrinterTest extends TestCase

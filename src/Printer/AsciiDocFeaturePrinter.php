@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Digitalnoise\BehatAsciiDocFormatter\Printer;
+namespace Digitalnoise\Behat\AsciiDocFormatter\Printer;
 
 use Behat\Behat\Output\Node\Printer\FeaturePrinter;
 use Behat\Gherkin\Node\FeatureNode;
@@ -11,8 +11,6 @@ use Behat\Testwork\Output\Printer\OutputPrinter;
 use Behat\Testwork\Tester\Result\TestResult;
 
 /**
- * Class AsciiDocFeaturePrinter
- *
  * @author Philip Weinke <philip.weinke@digitalnoise.de>
  */
 class AsciiDocFeaturePrinter implements FeaturePrinter

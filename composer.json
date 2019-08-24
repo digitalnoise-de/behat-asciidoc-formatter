@@ -1,15 +1,16 @@
 {
     "name": "digitalnoise/behat-asciidoc-formatter",
-    "type": "library",
+    "type": "behat-extension",
     "description": "Behat AsciiDoc Formatter",
+    "keywords": ["behat", "asciidoc", "documentation"],
     "autoload": {
         "psr-4": {
-            "Digitalnoise\\BehatAsciiDocFormatter\\": "src/"
+            "Digitalnoise\\Behat\\AsciiDocFormatter\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Digitalnoise\\BehatAsciiDocFormatter\\Tests\\": "tests/"
+            "Digitalnoise\\Behat\\AsciiDocFormatter\\Tests\\": "tests/"
         }
     },
     "require-dev": {

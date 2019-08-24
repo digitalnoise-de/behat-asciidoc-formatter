@@ -1,13 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace Digitalnoise\BehatAsciiDocFormatter\Tests\Printer;
+namespace Digitalnoise\Behat\AsciiDocFormatter\Tests\Printer;
 
 use Behat\Testwork\Output\Printer\OutputPrinter;
 
 /**
- * Class InMemoryOutputPrinter
- *
  * @author Philip Weinke <philip.weinke@digitalnoise.de>
  */
 class InMemoryOutputPrinter implements OutputPrinter
