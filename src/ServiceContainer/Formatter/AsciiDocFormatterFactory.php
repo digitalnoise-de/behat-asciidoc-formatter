@@ -12,6 +12,8 @@ use Behat\Behat\Output\Node\EventListener\AST\ScenarioNodeListener;
 use Behat\Behat\Output\Node\EventListener\AST\StepListener;
 use Behat\Behat\Output\Node\EventListener\AST\SuiteListener;
 use Behat\Behat\Output\Node\EventListener\Flow\FireOnlySiblingsListener;
+use Behat\Behat\Output\Node\EventListener\Flow\FirstBackgroundFiresFirstListener;
+use Behat\Behat\Output\Node\EventListener\Flow\OnlyFirstBackgroundFiresListener;
 use Behat\Behat\Output\Printer\ConsoleOutputFactory;
 use Behat\Testwork\Output\Node\EventListener\ChainEventListener;
 use Behat\Testwork\Output\NodeEventListeningFormatter;
@@ -34,36 +36,66 @@ use Symfony\Component\DependencyInjection\Reference;
  */
 class AsciiDocFormatterFactory implements FormatterFactory
 {
-    private const SETUP_PRINTER = 'asciidoc.printer.setup';
-    private const SUITE_PRINTER = 'asciidoc.printer.suite';
-    private const FEATURE_PRINTER = 'asciidoc.printer.feature';
-    private const OUTLINE_PRINTER = 'asciidoc.printer.outline';
-    private const EXAMPLE_ROW_PRINTER = 'asciidoc.printer.example_row';
-    private const SCENARIO_PRINTER = 'asciidoc.printer.scenario';
-    private const STEP_PRINTER = 'asciidoc.printer.step';
+    public const ROOT_LISTENER_ID = 'asciidoc.node.listener';
+
+    public const SETUP_PRINTER_ID = 'asciidoc.printer.setup';
+    public const SUITE_PRINTER_ID = 'asciidoc.printer.suite';
+    public const FEATURE_PRINTER_ID = 'asciidoc.printer.feature';
+    public const OUTLINE_PRINTER_ID = 'asciidoc.printer.outline';
+    public const EXAMPLE_ROW_PRINTER_ID = 'asciidoc.printer.example_row';
+    public const SCENARIO_PRINTER_ID = 'asciidoc.printer.scenario';
+    public const STEP_PRINTER_ID = 'asciidoc.printer.step';
 
     /**
      * @param ContainerBuilder $container
      */
     public function buildFormatter(ContainerBuilder $container)
     {
+        $this->loadRootNodeListener($container);
         $this->loadPrinter($container);
 
-        $chainEventListener = new Definition(
+        $definition = new Definition(
+            NodeEventListeningFormatter::class,
+            [
+                'asciidoc',
+                'Outputs in asciidoc.',
+                [],
+                $this->createOutputPrinterDefinition(),
+                $this->rearrangeBackgroundEvents(new Reference(self::ROOT_LISTENER_ID)),
+            ]
+        );
+
+        $definition->addTag(OutputExtension::FORMATTER_TAG, ['priority' => 100]);
+        $container->setDefinition(OutputExtension::FORMATTER_TAG . '.asciidoc', $definition);
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     */
+    private function loadRootNodeListener(ContainerBuilder $container): void
+    {
+        $definition = new Definition(
             ChainEventListener::class,
             [
                 [
-                    new Definition(SuiteListener::class, [new Reference(self::SETUP_PRINTER)]),
+                    new Definition(SuiteListener::class, [new Reference(self::SETUP_PRINTER_ID)]),
                     new Definition(
                         FeatureListener::class,
-                        [new Reference(self::FEATURE_PRINTER), new Reference(self::SETUP_PRINTER)]
+                        [new Reference(self::FEATURE_PRINTER_ID), new Reference(self::SETUP_PRINTER_ID)]
                     ),
-                    new Definition(
-                        ScenarioNodeListener::class,
+                    $this->proxySiblingEvents(
+                        BackgroundTested::BEFORE,
+                        BackgroundTested::AFTER,
                         [
-                            BackgroundTested::AFTER_SETUP,
-                            BackgroundTested::AFTER,
-                            new Reference(self::SCENARIO_PRINTER),
+                            new Definition(
+                                ScenarioNodeListener::class,
+                                [
+                                    BackgroundTested::AFTER_SETUP,
+                                    BackgroundTested::AFTER,
+                                    new Reference(self::SCENARIO_PRINTER_ID),
+                                ]
+                            ),
+                            new Definition(StepListener::class, [new Reference(self::STEP_PRINTER_ID)]),
                         ]
                     ),
                     $this->proxySiblingEvents(
@@ -75,10 +107,10 @@ class AsciiDocFormatterFactory implements FormatterFactory
                                 [
                                     ScenarioTested::AFTER_SETUP,
                                     ScenarioTested::AFTER,
-                                    new Reference(self::SCENARIO_PRINTER),
+                                    new Reference(self::SCENARIO_PRINTER_ID),
                                 ]
                             ),
-                            new Definition(StepListener::class, [new Reference(self::STEP_PRINTER)]),
+                            new Definition(StepListener::class, [new Reference(self::STEP_PRINTER_ID)]),
                         ]
                     ),
                     $this->proxySiblingEvents(
@@ -88,10 +120,10 @@ class AsciiDocFormatterFactory implements FormatterFactory
                             new Definition(
                                 OutlineTableListener::class,
                                 [
-                                    new Reference(self::OUTLINE_PRINTER),
-                                    new Reference(self::EXAMPLE_ROW_PRINTER),
-                                    new Reference(self::SETUP_PRINTER),
-                                    new Reference(self::SETUP_PRINTER),
+                                    new Reference(self::OUTLINE_PRINTER_ID),
+                                    new Reference(self::EXAMPLE_ROW_PRINTER_ID),
+                                    new Reference(self::SETUP_PRINTER_ID),
+                                    new Reference(self::SETUP_PRINTER_ID),
                                 ]
                             ),
                         ]
@@ -100,38 +132,7 @@ class AsciiDocFormatterFactory implements FormatterFactory
             ]
         );
 
-        $definition = new Definition(
-            NodeEventListeningFormatter::class,
-            [
-                'asciidoc',
-                'Outputs in asciidoc.',
-                [],
-                $this->createOutputPrinterDefinition(),
-                $chainEventListener,
-            ]
-        );
-
-        $definition->addTag(OutputExtension::FORMATTER_TAG, ['priority' => 100]);
-        $container->setDefinition(OutputExtension::FORMATTER_TAG . '.asciidoc', $definition);
-    }
-
-
-    private function loadPrinter(ContainerBuilder $container): void
-    {
-        $container->setDefinition(self::SETUP_PRINTER, new Definition(AsciiDocSetupPrinter::class));
-        $container->setDefinition(self::FEATURE_PRINTER, new Definition(AsciiDocFeaturePrinter::class));
-        $container->setDefinition(self::SUITE_PRINTER, new Definition(AsciiDocSuitePrinter::class));
-        $container->setDefinition(self::SCENARIO_PRINTER, new Definition(AsciiDocScenarioPrinter::class));
-        $container->setDefinition(self::STEP_PRINTER, new Definition(AsciiDocStepPrinter::class));
-        $container->setDefinition(self::EXAMPLE_ROW_PRINTER, new Definition(AsciiDocExampleRowPrinter::class));
-
-        $container->setDefinition(
-            self::OUTLINE_PRINTER,
-            new Definition(
-                AsciiDocOutlineTablePrinter::class,
-                [new Reference(self::SCENARIO_PRINTER), new Reference(self::STEP_PRINTER)]
-            )
-        );
+        $container->setDefinition(self::ROOT_LISTENER_ID, $definition);
     }
 
     /**
@@ -141,7 +142,7 @@ class AsciiDocFormatterFactory implements FormatterFactory
      *
      * @return Definition
      */
-    protected function proxySiblingEvents(string $beforeEventName, string $afterEventName, array $listeners): Definition
+    private function proxySiblingEvents(string $beforeEventName, string $afterEventName, array $listeners): Definition
     {
         return new Definition(
             FireOnlySiblingsListener::class,
@@ -153,9 +154,48 @@ class AsciiDocFormatterFactory implements FormatterFactory
         );
     }
 
-    private function createOutputPrinterDefinition()
+    /**
+     * @param ContainerBuilder $container
+     */
+    private function loadPrinter(ContainerBuilder $container): void
+    {
+        $container->setDefinition(self::SETUP_PRINTER_ID, new Definition(AsciiDocSetupPrinter::class));
+        $container->setDefinition(self::FEATURE_PRINTER_ID, new Definition(AsciiDocFeaturePrinter::class));
+        $container->setDefinition(self::SUITE_PRINTER_ID, new Definition(AsciiDocSuitePrinter::class));
+        $container->setDefinition(self::SCENARIO_PRINTER_ID, new Definition(AsciiDocScenarioPrinter::class));
+        $container->setDefinition(self::STEP_PRINTER_ID, new Definition(AsciiDocStepPrinter::class));
+        $container->setDefinition(self::EXAMPLE_ROW_PRINTER_ID, new Definition(AsciiDocExampleRowPrinter::class));
+
+        $container->setDefinition(
+            self::OUTLINE_PRINTER_ID,
+            new Definition(
+                AsciiDocOutlineTablePrinter::class,
+                [new Reference(self::SCENARIO_PRINTER_ID), new Reference(self::STEP_PRINTER_ID)]
+            )
+        );
+    }
+
+    /**
+     * @return Definition
+     */
+    private function createOutputPrinterDefinition(): Definition
     {
         return new Definition(StreamOutputPrinter::class, [new Definition(ConsoleOutputFactory::class)]);
+    }
+
+    /**
+     * @param Reference $listener
+     *
+     * @return Definition
+     */
+    private function rearrangeBackgroundEvents(Reference $listener): void
+    {
+        return new Definition(
+            FirstBackgroundFiresFirstListener::class,
+            [
+                new Definition(OnlyFirstBackgroundFiresListener::class, [$listener]),
+            ]
+        );
     }
 
     /**
