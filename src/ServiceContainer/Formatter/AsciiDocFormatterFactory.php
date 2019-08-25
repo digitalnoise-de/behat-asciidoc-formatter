@@ -14,12 +14,12 @@ use Behat\Behat\Output\Node\EventListener\AST\SuiteListener;
 use Behat\Behat\Output\Node\EventListener\Flow\FireOnlySiblingsListener;
 use Behat\Behat\Output\Node\EventListener\Flow\FirstBackgroundFiresFirstListener;
 use Behat\Behat\Output\Node\EventListener\Flow\OnlyFirstBackgroundFiresListener;
-use Behat\Behat\Output\Printer\ConsoleOutputFactory;
 use Behat\Testwork\Output\Node\EventListener\ChainEventListener;
 use Behat\Testwork\Output\NodeEventListeningFormatter;
-use Behat\Testwork\Output\Printer\StreamOutputPrinter;
+use Behat\Testwork\Output\Printer\Factory\FilesystemOutputFactory;
 use Behat\Testwork\Output\ServiceContainer\Formatter\FormatterFactory;
 use Behat\Testwork\Output\ServiceContainer\OutputExtension;
+use Digitalnoise\Behat\AsciiDocFormatter\Output\AsciiDocOutputPrinter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocExampleRowPrinter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocFeaturePrinter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocOutlineTablePrinter;
@@ -180,7 +180,7 @@ class AsciiDocFormatterFactory implements FormatterFactory
      */
     private function createOutputPrinterDefinition(): Definition
     {
-        return new Definition(StreamOutputPrinter::class, [new Definition(ConsoleOutputFactory::class)]);
+        return new Definition(AsciiDocOutputPrinter::class, [new Definition(FilesystemOutputFactory::class)]);
     }
 
     /**

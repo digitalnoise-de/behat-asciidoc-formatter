@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 class AsciiDocScenarioPrinterTest extends TestCase
 {
     /**
-     * @var InMemoryOutputPrinter
+     * @var InMemoryAsciiDocOutputPrinter
      */
     private $outputPrinter;
 
@@ -64,7 +64,7 @@ class AsciiDocScenarioPrinterTest extends TestCase
     {
         parent::setUp();
 
-        $this->outputPrinter = new InMemoryOutputPrinter();
+        $this->outputPrinter = new InMemoryAsciiDocOutputPrinter();
 
         $this->formatter = $this->createMock(Formatter::class);
         $this->formatter->method('getOutputPrinter')->willReturn($this->outputPrinter);

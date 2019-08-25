@@ -30,7 +30,7 @@ class AsciiDocStepPrinterTest extends TestCase
     private $scenario;
 
     /**
-     * @var InMemoryOutputPrinter
+     * @var InMemoryAsciiDocOutputPrinter
      */
     private $outputPrinter;
 
@@ -170,7 +170,7 @@ class AsciiDocStepPrinterTest extends TestCase
 
         $this->scenario = new ScenarioNode('My Scenario', [], [], 'Scenario', 1);
 
-        $this->outputPrinter = new InMemoryOutputPrinter();
+        $this->outputPrinter = new InMemoryAsciiDocOutputPrinter();
 
         $this->formatter = $this->createMock(Formatter::class);
         $this->formatter->method('getOutputPrinter')->willReturn($this->outputPrinter);

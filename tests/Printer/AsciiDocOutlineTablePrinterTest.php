@@ -23,7 +23,7 @@ use PHPUnit\Framework\TestCase;
 class AsciiDocOutlineTablePrinterTest extends TestCase
 {
     /**
-     * @var InMemoryOutputPrinter
+     * @var InMemoryAsciiDocOutputPrinter
      */
     private $outputPrinter;
 
@@ -81,7 +81,7 @@ class AsciiDocOutlineTablePrinterTest extends TestCase
     {
         parent::setUp();
 
-        $this->outputPrinter = new InMemoryOutputPrinter();
+        $this->outputPrinter = new InMemoryAsciiDocOutputPrinter();
 
         $this->formatter = $this->createMock(Formatter::class);
         $this->formatter->method('getOutputPrinter')->willReturn($this->outputPrinter);
