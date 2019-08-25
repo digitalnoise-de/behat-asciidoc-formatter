@@ -27,6 +27,7 @@ class InMemoryAsciiDocOutputPrinter extends AsciiDocOutputPrinter
 
     public function __construct()
     {
+        $this->setFilename('');
     }
 
     public function setFilename(string $filename): void
