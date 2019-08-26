@@ -9,8 +9,6 @@ use Behat\Gherkin\Node\TaggedNodeInterface;
 use Behat\Testwork\Output\Formatter;
 use Behat\Testwork\Output\Printer\OutputPrinter;
 use Behat\Testwork\Tester\Result\TestResult;
-use Digitalnoise\Behat\AsciiDocFormatter\Output\AsciiDocOutputPrinter;
-use RuntimeException;
 
 /**
  * @author Philip Weinke <philip.weinke@digitalnoise.de>
@@ -25,25 +23,9 @@ class AsciiDocFeaturePrinter implements FeaturePrinter
     {
         $printer = $formatter->getOutputPrinter();
 
-        $this->setFilename($printer, $feature);
         $this->printTitle($printer, $feature);
         $this->printTags($printer, $feature);
         $this->printDescription($printer, $feature);
-    }
-
-    /**
-     * @param OutputPrinter $printer
-     * @param FeatureNode   $feature
-     */
-    private function setFilename(OutputPrinter $printer, FeatureNode $feature): void
-    {
-        if (!$printer instanceof AsciiDocOutputPrinter) {
-            throw new RuntimeException(
-                sprintf('Expected "%s", got "%s"', AsciiDocOutputPrinter::class, get_class($printer))
-            );
-        }
-
-        $printer->setFilename(str_replace('.feature', '.adoc', $feature->getFile()));
     }
 
     /**
@@ -91,5 +73,6 @@ class AsciiDocFeaturePrinter implements FeaturePrinter
      */
     public function printFooter(Formatter $formatter, TestResult $result)
     {
+        $formatter->getOutputPrinter()->writeln('<<<');
     }
 }

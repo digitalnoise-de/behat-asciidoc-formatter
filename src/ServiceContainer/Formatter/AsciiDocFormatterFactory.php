@@ -10,7 +10,6 @@ use Behat\Behat\Output\Node\EventListener\AST\FeatureListener;
 use Behat\Behat\Output\Node\EventListener\AST\OutlineTableListener;
 use Behat\Behat\Output\Node\EventListener\AST\ScenarioNodeListener;
 use Behat\Behat\Output\Node\EventListener\AST\StepListener;
-use Behat\Behat\Output\Node\EventListener\AST\SuiteListener;
 use Behat\Behat\Output\Node\EventListener\Flow\FireOnlySiblingsListener;
 use Behat\Behat\Output\Node\EventListener\Flow\FirstBackgroundFiresFirstListener;
 use Behat\Behat\Output\Node\EventListener\Flow\OnlyFirstBackgroundFiresListener;
@@ -19,9 +18,12 @@ use Behat\Testwork\Output\NodeEventListeningFormatter;
 use Behat\Testwork\Output\Printer\Factory\FilesystemOutputFactory;
 use Behat\Testwork\Output\ServiceContainer\Formatter\FormatterFactory;
 use Behat\Testwork\Output\ServiceContainer\OutputExtension;
+use Digitalnoise\Behat\AsciiDocFormatter\EventListener\ExerciseListener;
+use Digitalnoise\Behat\AsciiDocFormatter\EventListener\SuiteListener;
 use Digitalnoise\Behat\AsciiDocFormatter\Output\AsciiDocOutputPrinter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocExampleRowPrinter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocFeaturePrinter;
+use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocHeaderPrinter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocOutlineTablePrinter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocScenarioPrinter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocSetupPrinter;
@@ -38,6 +40,7 @@ class AsciiDocFormatterFactory implements FormatterFactory
 {
     public const ROOT_LISTENER_ID = 'asciidoc.node.listener';
 
+    public const HEADER_PRINTER_ID = 'asciidoc.printer.header';
     public const SETUP_PRINTER_ID = 'asciidoc.printer.setup';
     public const SUITE_PRINTER_ID = 'asciidoc.printer.suite';
     public const FEATURE_PRINTER_ID = 'asciidoc.printer.feature';
@@ -78,7 +81,8 @@ class AsciiDocFormatterFactory implements FormatterFactory
             ChainEventListener::class,
             [
                 [
-                    new Definition(SuiteListener::class, [new Reference(self::SETUP_PRINTER_ID)]),
+                    new Definition(ExerciseListener::class, [new Reference(self::HEADER_PRINTER_ID)]),
+                    new Definition(SuiteListener::class, [new Reference(self::SUITE_PRINTER_ID)]),
                     new Definition(
                         FeatureListener::class,
                         [new Reference(self::FEATURE_PRINTER_ID), new Reference(self::SETUP_PRINTER_ID)]
@@ -159,6 +163,11 @@ class AsciiDocFormatterFactory implements FormatterFactory
      */
     private function loadPrinter(ContainerBuilder $container): void
     {
+        $container->setDefinition(
+            self::HEADER_PRINTER_ID,
+            new Definition(AsciiDocHeaderPrinter::class, ['%asciidoc.filename%', '%asciidoc.title%'])
+        );
+
         $container->setDefinition(self::SETUP_PRINTER_ID, new Definition(AsciiDocSetupPrinter::class));
         $container->setDefinition(self::FEATURE_PRINTER_ID, new Definition(AsciiDocFeaturePrinter::class));
         $container->setDefinition(self::SUITE_PRINTER_ID, new Definition(AsciiDocSuitePrinter::class));

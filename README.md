@@ -5,4 +5,21 @@
 [![Build Status](https://travis-ci.org/digitalnoise-de/behat-asciidoc-formatter.svg?branch=master)](https://travis-ci.org/digitalnoise-de/behat-asciidoc-formatter)
 [![License](https://poser.pugx.org/digitalnoise/behat-asciidoc-formatter/license)](https://packagist.org/packages/digitalnoise/behat-asciidoc-formatter)
 
-No releases yet
+## Installation
+
+```bash
+$ composer require --dev digitalnoise/behat-asciidoc-formatter
+```
+
+## Configuration
+
+```yaml
+default:
+    formatters:
+        asciidoc:
+            output_path: '%paths.base%/reports'
+    extensions:
+        Digitalnoise\Behat\AsciiDocFormatter:
+            filename: my-project.adoc
+            title: My Project Title
+```

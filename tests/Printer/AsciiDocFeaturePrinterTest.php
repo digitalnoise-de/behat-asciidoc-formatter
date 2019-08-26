@@ -5,6 +5,7 @@ namespace Digitalnoise\Behat\AsciiDocFormatter\Tests\Printer;
 
 use Behat\Gherkin\Node\FeatureNode;
 use Behat\Testwork\Output\Formatter;
+use Behat\Testwork\Tester\Result\TestResult;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocFeaturePrinter;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -29,20 +30,6 @@ class AsciiDocFeaturePrinterTest extends TestCase
      */
     private $formatter;
 
-    public function test_print_header_should_set_filename()
-    {
-        $feature = $this->createFeatureNode('My Feature');
-
-        $this->printer->printHeader($this->formatter, $feature);
-
-        self::assertEquals('feature/my-feature.adoc', $this->outputPrinter->getCurrentFilename());
-    }
-
-    private function createFeatureNode($title, $description = '', array $tags = []): FeatureNode
-    {
-        return new FeatureNode($title, $description, $tags, null, [], 'Feature', 'en', 'feature/my-feature.feature', 1);
-    }
-
     public function test_print_header_should_print_title_as_heading()
     {
         $feature = $this->createFeatureNode('My Feature');
@@ -50,6 +37,11 @@ class AsciiDocFeaturePrinterTest extends TestCase
         $this->printer->printHeader($this->formatter, $feature);
 
         self::assertEquals("=== My Feature\n", $this->outputPrinter->getOutput());
+    }
+
+    private function createFeatureNode($title, $description = '', array $tags = []): FeatureNode
+    {
+        return new FeatureNode($title, $description, $tags, null, [], 'Feature', 'en', 'feature/my-feature.feature', 1);
     }
 
     public function test_print_header_should_use_filename_as_title_if_feature_has_no_title()
@@ -80,6 +72,13 @@ class AsciiDocFeaturePrinterTest extends TestCase
             "=== My Feature\n****\nMultiline +\nFeature +\nDescription\n****\n",
             $this->outputPrinter->getOutput()
         );
+    }
+
+    public function test_print_footer_should_print_a_page_break()
+    {
+        $this->printer->printFooter($this->formatter, $this->createMock(TestResult::class));
+
+        self::assertEquals("<<<\n", $this->outputPrinter->getOutput());
     }
 
     protected function setUp()

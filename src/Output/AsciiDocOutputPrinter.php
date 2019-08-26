@@ -27,5 +27,6 @@ class AsciiDocOutputPrinter extends StreamOutputPrinter
         }
 
         $outputFactory->setFileName($filename);
+        $this->flush();
     }
 }

@@ -30,7 +30,11 @@ class AsciiDocFormatterExtension implements BehatExtension
         $extension = $extensionManager->getExtension('formatters');
         if (!$extension instanceof OutputExtension) {
             throw new RuntimeException(
-                sprintf('Expected OutputExtension, got "%s"', $extension === null ? 'null' : get_class($extension))
+                sprintf(
+                    'Expected "%s", got "%s"',
+                    ExtensionManager::class,
+                    $extension === null ? 'null' : get_class($extension)
+                )
             );
         }
 
@@ -39,9 +43,13 @@ class AsciiDocFormatterExtension implements BehatExtension
 
     public function configure(ArrayNodeDefinition $builder)
     {
+        $builder->children()->scalarNode('filename')->defaultValue('index.adoc');
+        $builder->children()->scalarNode('title')->defaultValue('Living Documentation');
     }
 
     public function load(ContainerBuilder $container, array $config)
     {
+        $container->setParameter('asciidoc.filename', $config['filename']);
+        $container->setParameter('asciidoc.title', $config['title']);
     }
 }
