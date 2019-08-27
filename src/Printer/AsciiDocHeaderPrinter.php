@@ -42,8 +42,10 @@ class AsciiDocHeaderPrinter
 
         $this->setFilename($printer);
         $printer->writeln(sprintf('= %s', $this->title));
+        $printer->writeln(':doctype: book');
         $printer->writeln(':icons: font');
         $printer->writeln(':toc:');
+        $printer->writeln(':toclevels: 3');
         $printer->writeln();
     }
 

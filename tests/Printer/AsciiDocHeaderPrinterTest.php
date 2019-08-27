@@ -29,8 +29,10 @@ class AsciiDocHeaderPrinterTest extends TestCase
         self::assertEquals('index.adoc', $this->outputPrinter->getCurrentFilename());
         self::assertEquals(
             "= Document Title\n" .
+            ":doctype: book\n" .
             ":icons: font\n" .
-            ":toc:\n\n",
+            ":toc:\n" .
+            ":toclevels: 3\n\n",
             $this->outputPrinter->getOutput()
         );
     }
