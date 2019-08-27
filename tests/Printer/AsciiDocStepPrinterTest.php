@@ -8,6 +8,7 @@ use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Tester\Result\ExecutedStepResult;
 use Behat\Behat\Tester\Result\SkippedStepResult;
 use Behat\Behat\Tester\Result\UndefinedStepResult;
+use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\ScenarioNode;
 use Behat\Gherkin\Node\StepNode;
 use Behat\Gherkin\Node\TableNode;
@@ -84,6 +85,26 @@ class AsciiDocStepPrinterTest extends TestCase
             "| Jack | Jackson | jack@jackson.test\n" .
             "| Peter | Peterson | peter@peterson.test\n" .
             "|===\n",
+            $this->outputPrinter->getOutput()
+        );
+    }
+
+    public function test_print_step_should_print_string_argument()
+    {
+        $string = new PyStringNode(["Just", "Some", "Text"], 2);
+
+        $step       = new StepNode('Given', 'there is text:', [$string], 1);
+        $stepResult = $this->createExecutedStepResult();
+
+        $this->printer->printStep($this->formatter, $this->scenario, $step, $stepResult);
+
+        self::assertEquals(
+            "*Given* there is text: +\n" .
+            "----\n" .
+            "Just\n" .
+            "Some\n" .
+            "Text\n" .
+            "----\n",
             $this->outputPrinter->getOutput()
         );
     }

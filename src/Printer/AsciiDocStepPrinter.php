@@ -6,6 +6,7 @@ namespace Digitalnoise\Behat\AsciiDocFormatter\Printer;
 use Behat\Behat\Output\Node\Printer\StepPrinter;
 use Behat\Behat\Tester\Result\ExecutedStepResult;
 use Behat\Behat\Tester\Result\StepResult;
+use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\ScenarioLikeInterface as Scenario;
 use Behat\Gherkin\Node\StepNode;
 use Behat\Gherkin\Node\TableNode;
@@ -113,6 +114,10 @@ class AsciiDocStepPrinter implements StepPrinter
             if ($argument instanceof TableNode) {
                 $this->printTable($printer, $argument);
             }
+
+            if ($argument instanceof PyStringNode) {
+                $this->printString($printer, $argument);
+            }
         }
     }
 
@@ -130,6 +135,17 @@ class AsciiDocStepPrinter implements StepPrinter
         }
 
         $printer->writeln('|===');
+    }
+
+    /**
+     * @param OutputPrinter $printer
+     * @param PyStringNode  $string
+     */
+    private function printString(OutputPrinter $printer, PyStringNode $string): void
+    {
+        $printer->writeln('----');
+        $printer->writeln($string->getRaw());
+        $printer->writeln('----');
     }
 
     /**
