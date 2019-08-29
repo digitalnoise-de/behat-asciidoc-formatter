@@ -21,7 +21,7 @@ class AsciiDocFeaturePrinterTest extends TestCase
     private $printer;
 
     /**
-     * @var InMemoryAsciiDocOutputPrinter
+     * @var FakeAsciiDocOutputPrinter
      */
     private $outputPrinter;
 
@@ -36,7 +36,7 @@ class AsciiDocFeaturePrinterTest extends TestCase
 
         $this->printer->printHeader($this->formatter, $feature);
 
-        self::assertEquals("=== My Feature\n", $this->outputPrinter->getOutput());
+        self::assertEquals("=== My Feature\n\n", $this->outputPrinter->getOutput());
     }
 
     private function createFeatureNode($title, $description = '', array $tags = []): FeatureNode
@@ -50,7 +50,7 @@ class AsciiDocFeaturePrinterTest extends TestCase
 
         $this->printer->printHeader($this->formatter, $feature);
 
-        self::assertEquals("=== feature/my-feature.feature\n", $this->outputPrinter->getOutput());
+        self::assertEquals("=== feature/my-feature.feature\n\n", $this->outputPrinter->getOutput());
     }
 
     public function test_print_header_should_print_single_line_of_formatted_tags_with_icon()
@@ -69,7 +69,7 @@ class AsciiDocFeaturePrinterTest extends TestCase
         $this->printer->printHeader($this->formatter, $feature);
 
         self::assertEquals(
-            "=== My Feature\n****\nMultiline +\nFeature +\nDescription\n****\n",
+            "=== My Feature\n\n****\nMultiline +\nFeature +\nDescription\n****\n\n",
             $this->outputPrinter->getOutput()
         );
     }
@@ -85,7 +85,7 @@ class AsciiDocFeaturePrinterTest extends TestCase
     {
         parent::setUp();
 
-        $this->outputPrinter = new InMemoryAsciiDocOutputPrinter();
+        $this->outputPrinter = new FakeAsciiDocOutputPrinter();
 
         $this->formatter = $this->createMock(Formatter::class);
         $this->formatter->method('getOutputPrinter')->willReturn($this->outputPrinter);

@@ -8,7 +8,7 @@ use Digitalnoise\Behat\AsciiDocFormatter\Output\AsciiDocOutputPrinter;
 /**
  * @author Philip Weinke <philip.weinke@digitalnoise.de>
  */
-class InMemoryAsciiDocOutputPrinter extends AsciiDocOutputPrinter
+class FakeAsciiDocOutputPrinter extends AsciiDocOutputPrinter
 {
     /**
      * @var string

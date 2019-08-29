@@ -24,18 +24,28 @@ class AsciiDocOutlineTablePrinter implements OutlineTablePrinter
     private $scenarioPrinter;
 
     /**
+     * @var AsciiDocBackgroundPrinter
+     */
+    private $backgroundPrinter;
+
+    /**
      * @var StepPrinter
      */
     private $stepPrinter;
 
     /**
-     * @param ScenarioPrinter $scenarioPrinter
-     * @param StepPrinter     $stepPrinter
+     * @param ScenarioPrinter           $scenarioPrinter
+     * @param AsciiDocBackgroundPrinter $backgroundPrinter
+     * @param StepPrinter               $stepPrinter
      */
-    public function __construct(ScenarioPrinter $scenarioPrinter, StepPrinter $stepPrinter)
-    {
-        $this->scenarioPrinter = $scenarioPrinter;
-        $this->stepPrinter     = $stepPrinter;
+    public function __construct(
+        ScenarioPrinter $scenarioPrinter,
+        AsciiDocBackgroundPrinter $backgroundPrinter,
+        StepPrinter $stepPrinter
+    ) {
+        $this->scenarioPrinter   = $scenarioPrinter;
+        $this->backgroundPrinter = $backgroundPrinter;
+        $this->stepPrinter       = $stepPrinter;
     }
 
     /**
@@ -48,15 +58,46 @@ class AsciiDocOutlineTablePrinter implements OutlineTablePrinter
     {
         $this->scenarioPrinter->printHeader($formatter, $feature, $outline);
 
+        $this->printBackground($formatter, $feature);
+        $this->printSteps($formatter, $outline);
+        $this->printTableHeader($formatter, $outline);
+    }
+
+    /**
+     * @param Formatter   $formatter
+     * @param FeatureNode $feature
+     */
+    private function printBackground(Formatter $formatter, FeatureNode $feature): void
+    {
+        if ($feature->getBackground() === null) {
+            return;
+        }
+
+        $this->backgroundPrinter->printBackground($formatter, $feature->getBackground());
+    }
+
+    /**
+     * @param Formatter   $formatter
+     * @param OutlineNode $outline
+     */
+    private function printSteps(Formatter $formatter, OutlineNode $outline): void
+    {
         foreach ($outline->getSteps() as $step) {
             $this->stepPrinter->printStep($formatter, $outline, $step, new UndefinedStepResult());
         }
+    }
 
-        $formatter->getOutputPrinter()->writeln();
-        $formatter->getOutputPrinter()->writeln("|===");
-        $formatter->getOutputPrinter()->writeln(
-            sprintf('| %s', implode(' | ', $outline->getExampleTable()->getRow(0)))
-        );
+    /**
+     * @param Formatter   $formatter
+     * @param OutlineNode $outline
+     */
+    private function printTableHeader(Formatter $formatter, OutlineNode $outline): void
+    {
+        $outputPrinter = $formatter->getOutputPrinter();
+
+        $outputPrinter->writeln();
+        $outputPrinter->writeln("|===");
+        $outputPrinter->writeln(sprintf('| %s', implode(' | ', $outline->getExampleTable()->getRow(0))));
     }
 
     /**
@@ -65,7 +106,17 @@ class AsciiDocOutlineTablePrinter implements OutlineTablePrinter
      */
     public function printFooter(Formatter $formatter, TestResult $result)
     {
-        $formatter->getOutputPrinter()->writeln("|===");
-        $formatter->getOutputPrinter()->writeln();
+        $this->printTableFooter($formatter);
+    }
+
+    /**
+     * @param Formatter $formatter
+     */
+    private function printTableFooter(Formatter $formatter): void
+    {
+        $outputPrinter = $formatter->getOutputPrinter();
+
+        $outputPrinter->writeln("|===");
+        $outputPrinter->writeln();
     }
 }

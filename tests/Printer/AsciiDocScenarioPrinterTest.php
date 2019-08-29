@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Digitalnoise\Behat\AsciiDocFormatter\Tests\Printer;
 
+use Behat\Gherkin\Node\BackgroundNode;
 use Behat\Gherkin\Node\FeatureNode;
 use Behat\Gherkin\Node\ScenarioNode;
 use Behat\Testwork\Output\Formatter;
@@ -17,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 class AsciiDocScenarioPrinterTest extends TestCase
 {
     /**
-     * @var InMemoryAsciiDocOutputPrinter
+     * @var FakeAsciiDocOutputPrinter
      */
     private $outputPrinter;
 
@@ -39,6 +40,16 @@ class AsciiDocScenarioPrinterTest extends TestCase
         $this->printer->printHeader($this->formatter, $feature, $scenario);
 
         self::assertEquals("==== My Scenario\n\n", $this->outputPrinter->getOutput());
+    }
+
+    public function test_print_header_should_print_keyword_as_block_title_for_background()
+    {
+        $feature  = new FeatureNode('', '', [], null, [], 'Feature', 'en', 'feature/my-feature.feature', 1);
+        $scenario = new BackgroundNode('', [], 'Background', 2);
+
+        $this->printer->printHeader($this->formatter, $feature, $scenario);
+
+        self::assertEquals(".Background\n", $this->outputPrinter->getOutput());
     }
 
     public function test_print_header_should_print_filename_and_line_as_heading_if_title_is_missing()
@@ -64,7 +75,7 @@ class AsciiDocScenarioPrinterTest extends TestCase
     {
         parent::setUp();
 
-        $this->outputPrinter = new InMemoryAsciiDocOutputPrinter();
+        $this->outputPrinter = new FakeAsciiDocOutputPrinter();
 
         $this->formatter = $this->createMock(Formatter::class);
         $this->formatter->method('getOutputPrinter')->willReturn($this->outputPrinter);

@@ -28,6 +28,11 @@ class SuiteListener implements EventListener
         $this->suitePrinter = $suitePrinter;
     }
 
+    /**
+     * @param Formatter $formatter
+     * @param Event     $event
+     * @param string    $eventName
+     */
     public function listenEvent(Formatter $formatter, Event $event, $eventName)
     {
         if ($event instanceof BeforeSuiteTested) {

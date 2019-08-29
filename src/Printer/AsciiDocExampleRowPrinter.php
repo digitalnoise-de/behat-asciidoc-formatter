@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Digitalnoise\Behat\AsciiDocFormatter\Printer;
 
+use Behat\Behat\EventDispatcher\Event\AfterStepTested;
 use Behat\Behat\Output\Node\Printer\ExampleRowPrinter;
 use Behat\Gherkin\Node\ExampleNode;
 use Behat\Gherkin\Node\OutlineNode;
@@ -14,10 +15,10 @@ use Behat\Testwork\Output\Formatter;
 class AsciiDocExampleRowPrinter implements ExampleRowPrinter
 {
     /**
-     * @param Formatter   $formatter
-     * @param OutlineNode $outline
-     * @param ExampleNode $example
-     * @param array       $events
+     * @param Formatter         $formatter
+     * @param OutlineNode       $outline
+     * @param ExampleNode       $example
+     * @param AfterStepTested[] $events
      */
     public function printExampleRow(Formatter $formatter, OutlineNode $outline, ExampleNode $example, array $events)
     {

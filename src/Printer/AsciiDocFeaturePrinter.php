@@ -26,6 +26,7 @@ class AsciiDocFeaturePrinter implements FeaturePrinter
         $this->printTitle($printer, $feature);
         $this->printTags($printer, $feature);
         $this->printDescription($printer, $feature);
+        $printer->writeln();
     }
 
     /**
@@ -50,7 +51,6 @@ class AsciiDocFeaturePrinter implements FeaturePrinter
     {
         if ($feature instanceof TaggedNodeInterface && $feature->hasTags()) {
             $printer->writeln(sprintf('icon:tags[] %s', implode(' ', $feature->getTags())));
-            $printer->writeln();
         }
     }
 
@@ -61,6 +61,7 @@ class AsciiDocFeaturePrinter implements FeaturePrinter
     private function printDescription(OutputPrinter $printer, FeatureNode $feature): void
     {
         if ($feature->hasDescription()) {
+            $printer->writeln();
             $printer->writeln('****');
             $printer->writeln(implode(" +\n", explode("\n", $feature->getDescription())));
             $printer->writeln('****');

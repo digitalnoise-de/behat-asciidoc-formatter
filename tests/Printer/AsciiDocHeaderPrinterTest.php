@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 class AsciiDocHeaderPrinterTest extends TestCase
 {
     /**
-     * @var InMemoryAsciiDocOutputPrinter
+     * @var FakeAsciiDocOutputPrinter
      */
     private $outputPrinter;
 
@@ -41,7 +41,7 @@ class AsciiDocHeaderPrinterTest extends TestCase
     {
         parent::setUp();
 
-        $this->outputPrinter = new InMemoryAsciiDocOutputPrinter();
+        $this->outputPrinter = new FakeAsciiDocOutputPrinter();
 
         $this->formatter = $this->createMock(Formatter::class);
         $this->formatter->method('getOutputPrinter')->willReturn($this->outputPrinter);

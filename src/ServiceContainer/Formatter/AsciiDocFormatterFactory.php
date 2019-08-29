@@ -11,8 +11,6 @@ use Behat\Behat\Output\Node\EventListener\AST\OutlineTableListener;
 use Behat\Behat\Output\Node\EventListener\AST\ScenarioNodeListener;
 use Behat\Behat\Output\Node\EventListener\AST\StepListener;
 use Behat\Behat\Output\Node\EventListener\Flow\FireOnlySiblingsListener;
-use Behat\Behat\Output\Node\EventListener\Flow\FirstBackgroundFiresFirstListener;
-use Behat\Behat\Output\Node\EventListener\Flow\OnlyFirstBackgroundFiresListener;
 use Behat\Testwork\Output\Node\EventListener\ChainEventListener;
 use Behat\Testwork\Output\NodeEventListeningFormatter;
 use Behat\Testwork\Output\Printer\Factory\FilesystemOutputFactory;
@@ -20,7 +18,9 @@ use Behat\Testwork\Output\ServiceContainer\Formatter\FormatterFactory;
 use Behat\Testwork\Output\ServiceContainer\OutputExtension;
 use Digitalnoise\Behat\AsciiDocFormatter\EventListener\ExerciseListener;
 use Digitalnoise\Behat\AsciiDocFormatter\EventListener\SuiteListener;
+use Digitalnoise\Behat\AsciiDocFormatter\EventListener\SuppressEvents;
 use Digitalnoise\Behat\AsciiDocFormatter\Output\AsciiDocOutputPrinter;
+use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocBackgroundPrinter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocExampleRowPrinter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocFeaturePrinter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocHeaderPrinter;
@@ -44,6 +44,7 @@ class AsciiDocFormatterFactory implements FormatterFactory
     public const SETUP_PRINTER_ID = 'asciidoc.printer.setup';
     public const SUITE_PRINTER_ID = 'asciidoc.printer.suite';
     public const FEATURE_PRINTER_ID = 'asciidoc.printer.feature';
+    public const BACKGROUND_PRINTER_ID = 'asciidoc.printer.background';
     public const OUTLINE_PRINTER_ID = 'asciidoc.printer.outline';
     public const EXAMPLE_ROW_PRINTER_ID = 'asciidoc.printer.example_row';
     public const SCENARIO_PRINTER_ID = 'asciidoc.printer.scenario';
@@ -64,7 +65,7 @@ class AsciiDocFormatterFactory implements FormatterFactory
                 'Outputs in asciidoc.',
                 [],
                 $this->createOutputPrinterDefinition(),
-                $this->rearrangeBackgroundEvents(new Reference(self::ROOT_LISTENER_ID)),
+                new Reference(self::ROOT_LISTENER_ID),
             ]
         );
 
@@ -88,18 +89,25 @@ class AsciiDocFormatterFactory implements FormatterFactory
                         [new Reference(self::FEATURE_PRINTER_ID), new Reference(self::SETUP_PRINTER_ID)]
                     ),
                     $this->proxySiblingEvents(
-                        BackgroundTested::BEFORE,
-                        BackgroundTested::AFTER,
+                        OutlineTested::BEFORE,
+                        OutlineTested::AFTER,
                         [
                             new Definition(
-                                ScenarioNodeListener::class,
+                                SuppressEvents::class,
                                 [
-                                    BackgroundTested::AFTER_SETUP,
+                                    BackgroundTested::BEFORE,
                                     BackgroundTested::AFTER,
-                                    new Reference(self::SCENARIO_PRINTER_ID),
+                                    new Definition(
+                                        OutlineTableListener::class,
+                                        [
+                                            new Reference(self::OUTLINE_PRINTER_ID),
+                                            new Reference(self::EXAMPLE_ROW_PRINTER_ID),
+                                            new Reference(self::SETUP_PRINTER_ID),
+                                            new Reference(self::SETUP_PRINTER_ID),
+                                        ]
+                                    ),
                                 ]
                             ),
-                            new Definition(StepListener::class, [new Reference(self::STEP_PRINTER_ID)]),
                         ]
                     ),
                     $this->proxySiblingEvents(
@@ -109,27 +117,20 @@ class AsciiDocFormatterFactory implements FormatterFactory
                             new Definition(
                                 ScenarioNodeListener::class,
                                 [
+                                    BackgroundTested::AFTER_SETUP,
+                                    BackgroundTested::AFTER,
+                                    new Reference(self::SCENARIO_PRINTER_ID),
+                                ]
+                            ),
+                            new Definition(
+                                ScenarioNodeListener::class,
+                                [
                                     ScenarioTested::AFTER_SETUP,
                                     ScenarioTested::AFTER,
                                     new Reference(self::SCENARIO_PRINTER_ID),
                                 ]
                             ),
                             new Definition(StepListener::class, [new Reference(self::STEP_PRINTER_ID)]),
-                        ]
-                    ),
-                    $this->proxySiblingEvents(
-                        OutlineTested::BEFORE,
-                        OutlineTested::AFTER,
-                        [
-                            new Definition(
-                                OutlineTableListener::class,
-                                [
-                                    new Reference(self::OUTLINE_PRINTER_ID),
-                                    new Reference(self::EXAMPLE_ROW_PRINTER_ID),
-                                    new Reference(self::SETUP_PRINTER_ID),
-                                    new Reference(self::SETUP_PRINTER_ID),
-                                ]
-                            ),
                         ]
                     ),
                 ],
@@ -176,10 +177,22 @@ class AsciiDocFormatterFactory implements FormatterFactory
         $container->setDefinition(self::EXAMPLE_ROW_PRINTER_ID, new Definition(AsciiDocExampleRowPrinter::class));
 
         $container->setDefinition(
+            self::BACKGROUND_PRINTER_ID,
+            new Definition(
+                AsciiDocBackgroundPrinter::class,
+                [new Reference(self::STEP_PRINTER_ID)]
+            )
+        );
+
+        $container->setDefinition(
             self::OUTLINE_PRINTER_ID,
             new Definition(
                 AsciiDocOutlineTablePrinter::class,
-                [new Reference(self::SCENARIO_PRINTER_ID), new Reference(self::STEP_PRINTER_ID)]
+                [
+                    new Reference(self::SCENARIO_PRINTER_ID),
+                    new Reference(self::BACKGROUND_PRINTER_ID),
+                    new Reference(self::STEP_PRINTER_ID),
+                ]
             )
         );
     }
@@ -190,21 +203,6 @@ class AsciiDocFormatterFactory implements FormatterFactory
     private function createOutputPrinterDefinition(): Definition
     {
         return new Definition(AsciiDocOutputPrinter::class, [new Definition(FilesystemOutputFactory::class)]);
-    }
-
-    /**
-     * @param Reference $listener
-     *
-     * @return Definition
-     */
-    private function rearrangeBackgroundEvents(Reference $listener): Definition
-    {
-        return new Definition(
-            FirstBackgroundFiresFirstListener::class,
-            [
-                new Definition(OnlyFirstBackgroundFiresListener::class, [$listener]),
-            ]
-        );
     }
 
     /**
