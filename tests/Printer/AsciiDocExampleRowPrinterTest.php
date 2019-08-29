@@ -6,32 +6,19 @@ namespace Digitalnoise\Behat\AsciiDocFormatter\Tests\Printer;
 use Behat\Gherkin\Node\ExampleNode;
 use Behat\Gherkin\Node\ExampleTableNode;
 use Behat\Gherkin\Node\OutlineNode;
-use Behat\Testwork\Output\Formatter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocExampleRowPrinter;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 
 /**
  * @author Philip Weinke <philip.weinke@digitalnoise.de>
  */
-class AsciiDocExampleRowPrinterTest extends TestCase
+class AsciiDocExampleRowPrinterTest extends PrinterTestCase
 {
-    /**
-     * @var FakeAsciiDocOutputPrinter
-     */
-    private $outputPrinter;
-
-    /**
-     * @var MockObject|Formatter
-     */
-    private $formatter;
-
     /**
      * @var AsciiDocExampleRowPrinter
      */
     private $printer;
 
-    public function test()
+    public function test_print_example_row_print_table_row()
     {
         $examples = new ExampleTableNode([], 'Examples');
         $outline  = new OutlineNode('My Outline', [], [], $examples, 'Scenario Outline', 1);
@@ -39,17 +26,12 @@ class AsciiDocExampleRowPrinterTest extends TestCase
 
         $this->printer->printExampleRow($this->formatter, $outline, $example, []);
 
-        self::assertEquals("| Peter | peter@peterson.test\n", $this->outputPrinter->getOutput());
+        $this->assertOutput("| Peter | peter@peterson.test\n");
     }
 
     protected function setUp()
     {
         parent::setUp();
-
-        $this->outputPrinter = new FakeAsciiDocOutputPrinter();
-
-        $this->formatter = $this->createMock(Formatter::class);
-        $this->formatter->method('getOutputPrinter')->willReturn($this->outputPrinter);
 
         $this->printer = new AsciiDocExampleRowPrinter();
     }

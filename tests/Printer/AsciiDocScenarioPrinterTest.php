@@ -6,27 +6,15 @@ namespace Digitalnoise\Behat\AsciiDocFormatter\Tests\Printer;
 use Behat\Gherkin\Node\BackgroundNode;
 use Behat\Gherkin\Node\FeatureNode;
 use Behat\Gherkin\Node\ScenarioNode;
-use Behat\Testwork\Output\Formatter;
 use Behat\Testwork\Tester\Result\TestResult;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocScenarioPrinter;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 
 /**
  * @author Philip Weinke <philip.weinke@digitalnoise.de>
  */
-class AsciiDocScenarioPrinterTest extends TestCase
+class AsciiDocScenarioPrinterTest extends PrinterTestCase
 {
-    /**
-     * @var FakeAsciiDocOutputPrinter
-     */
-    private $outputPrinter;
-
-    /**
-     * @var MockObject|Formatter
-     */
-    private $formatter;
-
     /**
      * @var AsciiDocScenarioPrinter
      */
@@ -39,7 +27,7 @@ class AsciiDocScenarioPrinterTest extends TestCase
 
         $this->printer->printHeader($this->formatter, $feature, $scenario);
 
-        self::assertEquals("==== My Scenario\n\n", $this->outputPrinter->getOutput());
+        $this->assertOutput("==== My Scenario\n\n");
     }
 
     public function test_print_header_should_print_keyword_as_block_title_for_background()
@@ -49,7 +37,7 @@ class AsciiDocScenarioPrinterTest extends TestCase
 
         $this->printer->printHeader($this->formatter, $feature, $scenario);
 
-        self::assertEquals(".Background\n", $this->outputPrinter->getOutput());
+        $this->assertOutput(".Background\n");
     }
 
     public function test_print_header_should_print_filename_and_line_as_heading_if_title_is_missing()
@@ -59,26 +47,22 @@ class AsciiDocScenarioPrinterTest extends TestCase
 
         $this->printer->printHeader($this->formatter, $feature, $scenario);
 
-        self::assertEquals("==== feature/my-feature.feature:1\n\n", $this->outputPrinter->getOutput());
+        $this->assertOutput("==== feature/my-feature.feature:1\n\n");
     }
 
     public function test_print_footer_should_print_a_newline()
     {
+        /** @var MockObject|TestResult $result */
         $result = $this->createMock(TestResult::class);
 
         $this->printer->printFooter($this->formatter, $result);
 
-        self::assertEquals("\n", $this->outputPrinter->getOutput());
+        $this->assertOutput("\n");
     }
 
     protected function setUp()
     {
         parent::setUp();
-
-        $this->outputPrinter = new FakeAsciiDocOutputPrinter();
-
-        $this->formatter = $this->createMock(Formatter::class);
-        $this->formatter->method('getOutputPrinter')->willReturn($this->outputPrinter);
 
         $this->printer = new AsciiDocScenarioPrinter();
     }

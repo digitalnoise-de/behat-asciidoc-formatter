@@ -3,27 +3,14 @@ declare(strict_types=1);
 
 namespace Digitalnoise\Behat\AsciiDocFormatter\Tests\Printer;
 
-use Behat\Testwork\Output\Formatter;
 use Behat\Testwork\Suite\GenericSuite;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocSuitePrinter;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 
 /**
  * @author Philip Weinke <philip.weinke@digitalnoise.de>
  */
-class AsciiDocSuitePrinterTest extends TestCase
+class AsciiDocSuitePrinterTest extends PrinterTestCase
 {
-    /**
-     * @var FakeAsciiDocOutputPrinter
-     */
-    private $outputPrinter;
-
-    /**
-     * @var MockObject|Formatter
-     */
-    private $formatter;
-
     /**
      * @var AsciiDocSuitePrinter
      */
@@ -35,17 +22,12 @@ class AsciiDocSuitePrinterTest extends TestCase
 
         $this->printer->printHeader($this->formatter, $suite);
 
-        self::assertEquals("== default\n\n", $this->outputPrinter->getOutput());
+        $this->assertOutput("== default\n\n");
     }
 
     protected function setUp()
     {
         parent::setUp();
-
-        $this->outputPrinter = new FakeAsciiDocOutputPrinter();
-
-        $this->formatter = $this->createMock(Formatter::class);
-        $this->formatter->method('getOutputPrinter')->willReturn($this->outputPrinter);
 
         $this->printer = new AsciiDocSuitePrinter();
     }

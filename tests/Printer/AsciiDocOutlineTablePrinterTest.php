@@ -8,28 +8,16 @@ use Behat\Gherkin\Node\ExampleTableNode;
 use Behat\Gherkin\Node\FeatureNode;
 use Behat\Gherkin\Node\OutlineNode;
 use Behat\Gherkin\Node\StepNode;
-use Behat\Testwork\Output\Formatter;
 use Behat\Testwork\Tester\Result\TestResult;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocBackgroundPrinter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocOutlineTablePrinter;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 
 /**
  * @author Philip Weinke <philip.weinke@digitalnoise.de>
  */
-class AsciiDocOutlineTablePrinterTest extends TestCase
+class AsciiDocOutlineTablePrinterTest extends PrinterTestCase
 {
-    /**
-     * @var FakeAsciiDocOutputPrinter
-     */
-    private $outputPrinter;
-
-    /**
-     * @var MockObject|Formatter
-     */
-    private $formatter;
-
     /**
      * @var AsciiDocOutlineTablePrinter
      */
@@ -47,14 +35,13 @@ class AsciiDocOutlineTablePrinterTest extends TestCase
 
         $this->printer->printHeader($this->formatter, $feature, $outline, []);
 
-        self::assertEquals(
+        $this->assertOutput(
             "My Outline\n" .
             "Step 1\n" .
             "Step 2\n" .
             "Step 3\n\n" .
             "|===\n" .
-            "| Username | E-Mail\n",
-            $this->outputPrinter->getOutput()
+            "| Username | E-Mail\n"
         );
     }
 
@@ -69,32 +56,30 @@ class AsciiDocOutlineTablePrinterTest extends TestCase
 
         $this->printer->printHeader($this->formatter, $feature, $outline, []);
 
-        self::assertEquals(
+        $this->assertOutput(
             "My Outline\n" .
             "Background\n" .
             "Step 1\n\n" .
             "|===\n" .
-            "| Username | E-Mail\n",
-            $this->outputPrinter->getOutput()
+            "| Username | E-Mail\n"
         );
     }
 
     public function test_print_footer_closes_the_table()
     {
-        $this->printer->printFooter($this->formatter, $this->createMock(TestResult::class));
+        /** @var MockObject|TestResult $result */
+        $result = $this->createMock(TestResult::class);
 
-        self::assertEquals("|===\n\n", $this->outputPrinter->getOutput());
+        $this->printer->printFooter($this->formatter, $result);
+
+        $this->assertOutput("|===\n\n");
     }
 
     protected function setUp()
     {
         parent::setUp();
 
-        $this->outputPrinter = new FakeAsciiDocOutputPrinter();
-
-        $this->formatter = $this->createMock(Formatter::class);
-        $this->formatter->method('getOutputPrinter')->willReturn($this->outputPrinter);
-
+        /** @var MockObject|AsciiDocBackgroundPrinter $backgroundPrinter */
         $backgroundPrinter = $this->createMock(AsciiDocBackgroundPrinter::class);
         $backgroundPrinter
             ->method('printBackground')

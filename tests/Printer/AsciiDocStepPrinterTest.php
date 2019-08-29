@@ -14,31 +14,18 @@ use Behat\Gherkin\Node\StepNode;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Testwork\Call\Call;
 use Behat\Testwork\Call\CallResult;
-use Behat\Testwork\Output\Formatter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocStepPrinter;
 use Exception;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 
 /**
  * @author Philip Weinke <philip.weinke@digitalnoise.de>
  */
-class AsciiDocStepPrinterTest extends TestCase
+class AsciiDocStepPrinterTest extends PrinterTestCase
 {
     /**
      * @var ScenarioNode
      */
     private $scenario;
-
-    /**
-     * @var FakeAsciiDocOutputPrinter
-     */
-    private $outputPrinter;
-
-    /**
-     * @var MockObject|Formatter
-     */
-    private $formatter;
 
     /**
      * @var AsciiDocStepPrinter
@@ -52,7 +39,7 @@ class AsciiDocStepPrinterTest extends TestCase
 
         $this->printer->printStep($this->formatter, $this->scenario, $step, $stepResult);
 
-        self::assertEquals("*Given* there is a test +\n", $this->outputPrinter->getOutput());
+        $this->assertOutput("*Given* there is a test +\n");
     }
 
     private function createExecutedStepResult(Exception $exception = null, $stdOut = null): ExecutedStepResult
@@ -77,15 +64,14 @@ class AsciiDocStepPrinterTest extends TestCase
 
         $this->printer->printStep($this->formatter, $this->scenario, $step, $stepResult);
 
-        self::assertEquals(
+        $this->assertOutput(
             "*Given* there are users: +\n" .
             "[stripes=even,options=\"header\"]\n" .
             "|===\n" .
             "| Firstname | Lastname | E-Mail\n" .
             "| Jack | Jackson | jack@jackson.test\n" .
             "| Peter | Peterson | peter@peterson.test\n" .
-            "|===\n",
-            $this->outputPrinter->getOutput()
+            "|===\n"
         );
     }
 
@@ -98,14 +84,13 @@ class AsciiDocStepPrinterTest extends TestCase
 
         $this->printer->printStep($this->formatter, $this->scenario, $step, $stepResult);
 
-        self::assertEquals(
+        $this->assertOutput(
             "*Given* there is text: +\n" .
             "----\n" .
             "Just\n" .
             "Some\n" .
             "Text\n" .
-            "----\n",
-            $this->outputPrinter->getOutput()
+            "----\n"
         );
     }
 
@@ -116,13 +101,12 @@ class AsciiDocStepPrinterTest extends TestCase
 
         $this->printer->printStep($this->formatter, $this->scenario, $step, $stepResult);
 
-        self::assertEquals(
+        $this->assertOutput(
             "*Given* there is a test +\n" .
             "----\n" .
             "Hello\n" .
             "World\n" .
-            "----\n",
-            $this->outputPrinter->getOutput()
+            "----\n"
         );
     }
 
@@ -133,15 +117,14 @@ class AsciiDocStepPrinterTest extends TestCase
 
         $this->printer->printStep($this->formatter, $this->scenario, $step, $stepResult);
 
-        self::assertEquals(
+        $this->assertOutput(
             "[WARNING]\n" .
             "====\n" .
             "[red]#*Given* there is a test# +\n" .
             "----\n" .
             "Exception message\n" .
             "----\n" .
-            "====\n",
-            $this->outputPrinter->getOutput()
+            "====\n"
         );
     }
 
@@ -152,7 +135,7 @@ class AsciiDocStepPrinterTest extends TestCase
 
         $this->printer->printStep($this->formatter, $this->scenario, $step, $stepResult);
 
-        self::assertEquals("[yellow]#*Given* there is a test# +\n", $this->outputPrinter->getOutput());
+        $this->assertOutput("[yellow]#*Given* there is a test# +\n");
     }
 
     public function test_pending_step_should_be_printed_yellow_and_wrapped_in_a_caution_block_with_the_exception_message(
@@ -163,15 +146,14 @@ class AsciiDocStepPrinterTest extends TestCase
 
         $this->printer->printStep($this->formatter, $this->scenario, $step, $stepResult);
 
-        self::assertEquals(
+        $this->assertOutput(
             "[CAUTION]\n" .
             "====\n" .
             "[yellow]#*Given* there is a test# +\n" .
             "----\n" .
             "Pending message\n" .
             "----\n" .
-            "====\n",
-            $this->outputPrinter->getOutput()
+            "====\n"
         );
     }
 
@@ -182,7 +164,7 @@ class AsciiDocStepPrinterTest extends TestCase
 
         $this->printer->printStep($this->formatter, $this->scenario, $step, $stepResult);
 
-        self::assertEquals("[blue]#*Given* there is a test# +\n", $this->outputPrinter->getOutput());
+        $this->assertOutput("[blue]#*Given* there is a test# +\n");
     }
 
     protected function setUp()
@@ -190,11 +172,6 @@ class AsciiDocStepPrinterTest extends TestCase
         parent::setUp();
 
         $this->scenario = new ScenarioNode('My Scenario', [], [], 'Scenario', 1);
-
-        $this->outputPrinter = new FakeAsciiDocOutputPrinter();
-
-        $this->formatter = $this->createMock(Formatter::class);
-        $this->formatter->method('getOutputPrinter')->willReturn($this->outputPrinter);
 
         $this->printer = new AsciiDocStepPrinter();
     }
