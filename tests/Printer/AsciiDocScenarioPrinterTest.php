@@ -30,16 +30,6 @@ class AsciiDocScenarioPrinterTest extends PrinterTestCase
         $this->assertOutput("==== My Scenario\n\n");
     }
 
-    public function test_print_header_should_print_keyword_as_block_title_for_background()
-    {
-        $feature  = new FeatureNode('', '', [], null, [], 'Feature', 'en', 'feature/my-feature.feature', 1);
-        $scenario = new BackgroundNode('', [], 'Background', 2);
-
-        $this->printer->printHeader($this->formatter, $feature, $scenario);
-
-        $this->assertOutput(".Background\n");
-    }
-
     public function test_print_header_should_print_filename_and_line_as_heading_if_title_is_missing()
     {
         $feature  = new FeatureNode('', '', [], null, [], 'Feature', 'en', 'feature/my-feature.feature', 1);
