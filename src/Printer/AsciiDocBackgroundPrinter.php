@@ -3,41 +3,33 @@ declare(strict_types=1);
 
 namespace Digitalnoise\Behat\AsciiDocFormatter\Printer;
 
-use Behat\Behat\Output\Node\Printer\StepPrinter;
-use Behat\Behat\Tester\Result\UndefinedStepResult;
-use Behat\Gherkin\Node\BackgroundNode;
+use Behat\Behat\Output\Node\Printer\ScenarioPrinter;
+use Behat\Gherkin\Node\FeatureNode;
+use Behat\Gherkin\Node\ScenarioLikeInterface as Scenario;
 use Behat\Testwork\Output\Formatter;
+use Behat\Testwork\Tester\Result\TestResult;
 
 /**
  * @author Philip Weinke <philip.weinke@digitalnoise.de>
  */
-class AsciiDocBackgroundPrinter
+class AsciiDocBackgroundPrinter implements ScenarioPrinter
 {
     /**
-     * @var StepPrinter
+     * @param Formatter   $formatter
+     * @param FeatureNode $feature
+     * @param Scenario    $scenario
      */
-    private $stepPrinter;
-
-    /**
-     * @param StepPrinter $stepPrinter
-     */
-    public function __construct(StepPrinter $stepPrinter)
+    public function printHeader(Formatter $formatter, FeatureNode $feature, Scenario $scenario)
     {
-        $this->stepPrinter = $stepPrinter;
+        $formatter->getOutputPrinter()->writeln(sprintf('.%s', $scenario->getKeyword()));
     }
 
     /**
-     * @param Formatter      $formatter
-     * @param BackgroundNode $background
+     * @param Formatter  $formatter
+     * @param TestResult $result
      */
-    public function printBackground(Formatter $formatter, BackgroundNode $background): void
+    public function printFooter(Formatter $formatter, TestResult $result)
     {
-        $printer = $formatter->getOutputPrinter();
-
-        $printer->writeln(sprintf('.%s', $background->getKeyword()));
-        foreach ($background->getSteps() as $step) {
-            $this->stepPrinter->printStep($formatter, $background, $step, new UndefinedStepResult());
-        }
-        $printer->writeln();
+        $formatter->getOutputPrinter()->writeln();
     }
 }

@@ -59,16 +59,6 @@ class AsciiDocFeaturePrinterTest extends PrinterTestCase
         $this->assertOutput("=== My Feature\n\n****\nMultiline +\nFeature +\nDescription\n****\n\n");
     }
 
-    public function test_print_footer_should_print_a_page_break()
-    {
-        /** @var MockObject|TestResult $result */
-        $result = $this->createMock(TestResult::class);
-
-        $this->printer->printFooter($this->formatter, $result);
-
-        $this->assertOutput("<<<\n");
-    }
-
     protected function setUp()
     {
         parent::setUp();

@@ -74,6 +74,5 @@ class AsciiDocFeaturePrinter implements FeaturePrinter
      */
     public function printFooter(Formatter $formatter, TestResult $result)
     {
-        $formatter->getOutputPrinter()->writeln('<<<');
     }
 }

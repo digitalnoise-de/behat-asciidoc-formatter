@@ -40,14 +40,24 @@ class AsciiDocScenarioPrinterTest extends PrinterTestCase
         $this->assertOutput("==== feature/my-feature.feature:1\n\n");
     }
 
-    public function test_print_footer_should_print_a_newline()
+    public function test_print_header_should_print_keyword_as_block_title_for_background()
+    {
+        $feature  = new FeatureNode('', '', [], null, [], 'Feature', 'en', 'feature/my-feature.feature', 1);
+        $scenario = new BackgroundNode('', [], 'Background', 2);
+
+        $this->printer->printHeader($this->formatter, $feature, $scenario);
+
+        $this->assertOutput(".Background\n");
+    }
+
+    public function test_print_footer_should_print_a_page_break()
     {
         /** @var MockObject|TestResult $result */
         $result = $this->createMock(TestResult::class);
 
         $this->printer->printFooter($this->formatter, $result);
 
-        $this->assertOutput("\n");
+        $this->assertOutput("\n<<<\n\n");
     }
 
     protected function setUp()

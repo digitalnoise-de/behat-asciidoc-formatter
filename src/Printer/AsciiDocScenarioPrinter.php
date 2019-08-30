@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Digitalnoise\Behat\AsciiDocFormatter\Printer;
 
 use Behat\Behat\Output\Node\Printer\ScenarioPrinter;
+use Behat\Gherkin\Node\BackgroundNode;
 use Behat\Gherkin\Node\FeatureNode;
 use Behat\Gherkin\Node\ScenarioLikeInterface as Scenario;
 use Behat\Testwork\Output\Formatter;
@@ -34,6 +35,11 @@ class AsciiDocScenarioPrinter implements ScenarioPrinter
      */
     public function printTitle(OutputPrinter $printer, FeatureNode $feature, Scenario $scenario): void
     {
+        if ($scenario instanceof BackgroundNode) {
+            $printer->writeln(sprintf('.%s', $scenario->getKeyword()));
+            return;
+        }
+
         $title = $scenario->getTitle();
         if (empty($title)) {
             $title = sprintf('%s:%s', $feature->getFile(), $scenario->getLine());
@@ -49,6 +55,8 @@ class AsciiDocScenarioPrinter implements ScenarioPrinter
      */
     public function printFooter(Formatter $formatter, TestResult $result)
     {
+        $formatter->getOutputPrinter()->writeln();
+        $formatter->getOutputPrinter()->writeln('<<<');
         $formatter->getOutputPrinter()->writeln();
     }
 }
