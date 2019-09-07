@@ -43,13 +43,48 @@ class AsciiDocFormatterExtension implements BehatExtension
 
     public function configure(ArrayNodeDefinition $builder)
     {
-        $builder->children()->scalarNode('filename')->defaultValue('index.adoc');
-        $builder->children()->scalarNode('title')->defaultValue('Living Documentation');
+        $builder
+            ->children()
+                ->scalarNode('filename')->defaultValue('index.adoc')->end()
+                ->scalarNode('title')->defaultValue('Living Documentation')->end()
+                ->arrayNode('formatting')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->arrayNode('scenario')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->scalarNode('passed')->defaultValue('[scenario-passed]#icon:check-circle[] %s#')->end()
+                                ->scalarNode('failed')->defaultValue('[scenario-failed]#icon:exclamation-circle[] %s#')->end()
+                                ->scalarNode('undefined')->defaultValue('[scenario-undefined]#icon:question-circle[] %s#')->end()
+                            ->end()
+                        ->end()
+                        ->arrayNode('outline')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->scalarNode('passed')->defaultValue('[scenario-passed]#icon:check-circle[] %s#')->end()
+                                ->scalarNode('failed')->defaultValue('[scenario-failed]#icon:exclamation-circle[] %s#')->end()
+                                ->scalarNode('undefined')->defaultValue('[scenario-undefined]#icon:question-circle[] %s#')->end()
+                            ->end()
+                        ->end()
+                        ->arrayNode('step')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->scalarNode('passed')->defaultValue('[step-passed]#%s#')->end()
+                                ->scalarNode('failed')->defaultValue('[step-failed]#%s#')->end()
+                                ->scalarNode('pending')->defaultValue('[step-pending]#%s#')->end()
+                                ->scalarNode('undefined')->defaultValue('[step-undefined]#%s#')->end()
+                                ->scalarNode('skipped')->defaultValue('[step-skipped]#%s#')->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end();
     }
 
     public function load(ContainerBuilder $container, array $config)
     {
         $container->setParameter('asciidoc.filename', $config['filename']);
         $container->setParameter('asciidoc.title', $config['title']);
+        $container->setParameter('asciidoc.formatting', $config['formatting']);
     }
 }

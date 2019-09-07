@@ -20,6 +20,19 @@ use Behat\Testwork\Tester\Result\ExceptionResult;
 class AsciiDocStepPrinter implements StepPrinter
 {
     /**
+     * @var ResultFormatter
+     */
+    private $resultFormatter;
+
+    /**
+     * @param ResultFormatter $resultFormatter
+     */
+    public function __construct(ResultFormatter $resultFormatter)
+    {
+        $this->resultFormatter = $resultFormatter;
+    }
+
+    /**
      * @param Formatter  $formatter
      * @param Scenario   $scenario
      * @param StepNode   $step
@@ -61,47 +74,14 @@ class AsciiDocStepPrinter implements StepPrinter
      */
     private function printText(OutputPrinter $printer, StepNode $step, StepResult $result): void
     {
-        $printer->write($this->formatText(sprintf('*%s* %s', $step->getKeyword(), $step->getText()), $result));
+        $printer->write(
+            $this->resultFormatter->format(
+                sprintf('*%s* %s', $step->getKeyword(), $step->getText()),
+                $step->getNodeType(),
+                $result
+            )
+        );
         $printer->writeln(' +');
-    }
-
-    /**
-     * @param string     $text
-     * @param StepResult $result
-     *
-     * @return string
-     */
-    private function formatText(string $text, StepResult $result): string
-    {
-        $role = $this->getRole($result);
-        if ($role === null) {
-            return $text;
-        }
-
-        return sprintf('[%s]#%s#', $role, $text);
-    }
-
-    /**
-     * @param StepResult $result
-     *
-     * @return string|null
-     */
-    private function getRole(StepResult $result): ?string
-    {
-        switch ($result->getResultCode()) {
-            case StepResult::FAILED:
-                return 'red';
-
-            case StepResult::PENDING:
-            case StepResult::UNDEFINED:
-                return 'yellow';
-
-            case StepResult::SKIPPED:
-                return 'blue';
-
-            default:
-                return null;
-        }
     }
 
     /**

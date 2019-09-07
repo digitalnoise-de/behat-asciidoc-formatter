@@ -3,17 +3,11 @@ declare(strict_types=1);
 
 namespace Digitalnoise\Behat\AsciiDocFormatter\Tests\Printer;
 
-use Behat\Behat\Definition\SearchResult;
 use Behat\Behat\Tester\Exception\PendingException;
-use Behat\Behat\Tester\Result\ExecutedStepResult;
-use Behat\Behat\Tester\Result\SkippedStepResult;
-use Behat\Behat\Tester\Result\UndefinedStepResult;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\ScenarioNode;
 use Behat\Gherkin\Node\StepNode;
 use Behat\Gherkin\Node\TableNode;
-use Behat\Testwork\Call\Call;
-use Behat\Testwork\Call\CallResult;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocStepPrinter;
 use Exception;
 
@@ -39,14 +33,7 @@ class AsciiDocStepPrinterTest extends PrinterTestCase
 
         $this->printer->printStep($this->formatter, $this->scenario, $step, $stepResult);
 
-        $this->assertOutput("*Given* there is a test +\n");
-    }
-
-    private function createExecutedStepResult(Exception $exception = null, $stdOut = null): ExecutedStepResult
-    {
-        $callResult = new CallResult($this->createMock(Call::class), '', $exception, $stdOut);
-
-        return new ExecutedStepResult(new SearchResult(), $callResult);
+        $this->assertOutput("[Step-passed]*Given* there is a test +\n");
     }
 
     public function test_print_step_should_print_table_argument()
@@ -65,7 +52,7 @@ class AsciiDocStepPrinterTest extends PrinterTestCase
         $this->printer->printStep($this->formatter, $this->scenario, $step, $stepResult);
 
         $this->assertOutput(
-            "*Given* there are users: +\n" .
+            "[Step-passed]*Given* there are users: +\n" .
             "[stripes=even,options=\"header\"]\n" .
             "|===\n" .
             "| Firstname | Lastname | E-Mail\n" .
@@ -85,7 +72,7 @@ class AsciiDocStepPrinterTest extends PrinterTestCase
         $this->printer->printStep($this->formatter, $this->scenario, $step, $stepResult);
 
         $this->assertOutput(
-            "*Given* there is text: +\n" .
+            "[Step-passed]*Given* there is text: +\n" .
             "----\n" .
             "Just\n" .
             "Some\n" .
@@ -102,7 +89,7 @@ class AsciiDocStepPrinterTest extends PrinterTestCase
         $this->printer->printStep($this->formatter, $this->scenario, $step, $stepResult);
 
         $this->assertOutput(
-            "*Given* there is a test +\n" .
+            "[Step-passed]*Given* there is a test +\n" .
             "----\n" .
             "Hello\n" .
             "World\n" .
@@ -110,7 +97,7 @@ class AsciiDocStepPrinterTest extends PrinterTestCase
         );
     }
 
-    public function test_failed_step_should_be_printed_red_and_wrapped_in_a_warning_block_with_the_exception_message()
+    public function test_failed_step_should_be_wrapped_in_a_warning_block_with_the_exception_message()
     {
         $step       = new StepNode('Given', 'there is a test', [], 1);
         $stepResult = $this->createExecutedStepResult(new Exception('Exception message'));
@@ -120,7 +107,7 @@ class AsciiDocStepPrinterTest extends PrinterTestCase
         $this->assertOutput(
             "[WARNING]\n" .
             "====\n" .
-            "[red]#*Given* there is a test# +\n" .
+            "[Step-failed]*Given* there is a test +\n" .
             "----\n" .
             "Exception message\n" .
             "----\n" .
@@ -128,18 +115,7 @@ class AsciiDocStepPrinterTest extends PrinterTestCase
         );
     }
 
-    public function test_undefined_step_should_be_highlighted_yellow()
-    {
-        $step       = new StepNode('Given', 'there is a test', [], 1);
-        $stepResult = new UndefinedStepResult();
-
-        $this->printer->printStep($this->formatter, $this->scenario, $step, $stepResult);
-
-        $this->assertOutput("[yellow]#*Given* there is a test# +\n");
-    }
-
-    public function test_pending_step_should_be_printed_yellow_and_wrapped_in_a_caution_block_with_the_exception_message(
-    )
+    public function test_pending_step_should_be_wrapped_in_a_caution_block_with_the_exception_message()
     {
         $step       = new StepNode('Given', 'there is a test', [], 1);
         $stepResult = $this->createExecutedStepResult(new PendingException('Pending message'));
@@ -149,22 +125,12 @@ class AsciiDocStepPrinterTest extends PrinterTestCase
         $this->assertOutput(
             "[CAUTION]\n" .
             "====\n" .
-            "[yellow]#*Given* there is a test# +\n" .
+            "[Step-pending]*Given* there is a test +\n" .
             "----\n" .
             "Pending message\n" .
             "----\n" .
             "====\n"
         );
-    }
-
-    public function test_skipped_step_should_be_highlighted_blue()
-    {
-        $step       = new StepNode('Given', 'there is a test', [], 1);
-        $stepResult = new SkippedStepResult(new SearchResult());
-
-        $this->printer->printStep($this->formatter, $this->scenario, $step, $stepResult);
-
-        $this->assertOutput("[blue]#*Given* there is a test# +\n");
     }
 
     protected function setUp()
@@ -173,6 +139,6 @@ class AsciiDocStepPrinterTest extends PrinterTestCase
 
         $this->scenario = new ScenarioNode('My Scenario', [], [], 'Scenario', 1);
 
-        $this->printer = new AsciiDocStepPrinter();
+        $this->printer = new AsciiDocStepPrinter(new FakeResultFormatter());
     }
 }

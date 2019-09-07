@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace Digitalnoise\Behat\AsciiDocFormatter\Tests\Printer;
 
+use Behat\Behat\Tester\Result\StepResult;
 use Behat\Gherkin\Node\BackgroundNode;
 use Behat\Gherkin\Node\FeatureNode;
 use Behat\Gherkin\Node\ScenarioNode;
+use Behat\Gherkin\Node\StepNode;
 use Behat\Testwork\Tester\Result\TestResult;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocScenarioPrinter;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -20,50 +22,102 @@ class AsciiDocScenarioPrinterTest extends PrinterTestCase
      */
     private $printer;
 
-    public function test_print_header_should_print_title_as_heading()
+    public function test_title_should_be_formatted()
     {
         $feature  = new FeatureNode('', '', [], null, [], 'Feature', 'en', 'feature/my-feature.feature', 1);
         $scenario = new ScenarioNode('My Scenario', [], [], 'Scenario', 1);
+        $result   = $this->createTestResult(TestResult::PASSED);
 
-        $this->printer->printHeader($this->formatter, $feature, $scenario);
+        $this->printer->printScenario($this->formatter, $feature, $scenario, [], $result);
 
-        $this->assertOutput("==== My Scenario\n\n");
+        $this->assertOutput("==== [Scenario-passed]My Scenario\n\n");
     }
 
-    public function test_print_header_should_print_filename_and_line_as_heading_if_title_is_missing()
+    public function test_filename_should_be_used_as_title_if_there_is_no_title()
     {
         $feature  = new FeatureNode('', '', [], null, [], 'Feature', 'en', 'feature/my-feature.feature', 1);
         $scenario = new ScenarioNode('', [], [], 'Scenario', 1);
+        $result   = $this->createTestResult(TestResult::PASSED);
 
-        $this->printer->printHeader($this->formatter, $feature, $scenario);
+        $this->printer->printScenario($this->formatter, $feature, $scenario, [], $result);
 
-        $this->assertOutput("==== feature/my-feature.feature:1\n\n");
+        $this->assertOutput("==== [Scenario-passed]feature/my-feature.feature:1\n\n");
     }
 
-    public function test_print_header_should_print_keyword_as_block_title_for_background()
+    public function test_steps_should_be_printed_with_the_correct_results()
     {
+        $steps = [
+            new StepNode('', 'Passing', [], 10),
+            new StepNode('', 'Failing', [], 11),
+        ];
+
+        $stepResults = [
+            10 => $this->createStepResult(TestResult::PASSED),
+            11 => $this->createStepResult(TestResult::FAILED),
+        ];
+
         $feature  = new FeatureNode('', '', [], null, [], 'Feature', 'en', 'feature/my-feature.feature', 1);
-        $scenario = new BackgroundNode('', [], 'Background', 2);
+        $scenario = new ScenarioNode('My Scenario', [], $steps, 'Scenario', 1);
+        $result   = $this->createTestResult(TestResult::PASSED);
 
-        $this->printer->printHeader($this->formatter, $feature, $scenario);
+        $this->printer->printScenario($this->formatter, $feature, $scenario, $stepResults, $result);
 
-        $this->assertOutput(".Background\n");
+        $this->assertOutput("==== [Scenario-passed]My Scenario\n\nPassing:0\nFailing:99\n\n");
     }
 
-    public function test_print_footer_should_print_a_page_break()
+    /**
+     * @param int $code
+     *
+     * @return MockObject|StepResult
+     */
+    private function createStepResult(int $code)
     {
-        /** @var MockObject|TestResult $result */
-        $result = $this->createMock(TestResult::class);
+        $result = $this->createMock(StepResult::class);
+        $result->method('getResultCode')->willReturn($code);
 
-        $this->printer->printFooter($this->formatter, $result);
+        return $result;
+    }
 
-        $this->assertOutput("\n<<<\n\n");
+    public function test_steps_without_result_should_be_printed_as_undefined()
+    {
+        $steps       = [new StepNode('', 'Passing', [], 10)];
+        $stepResults = [];
+
+        $feature  = new FeatureNode('', '', [], null, [], 'Feature', 'en', 'feature/my-feature.feature', 1);
+        $scenario = new ScenarioNode('My Scenario', [], $steps, 'Scenario', 1);
+        $result   = $this->createTestResult(TestResult::PASSED);
+
+        $this->printer->printScenario($this->formatter, $feature, $scenario, $stepResults, $result);
+
+        $this->assertOutput("==== [Scenario-passed]My Scenario\n\nPassing:30\n\n");
+    }
+
+    public function test_background_should_be_printed()
+    {
+        $steps = [
+            new StepNode('', 'Passing', [], 10),
+            new StepNode('', 'Failing', [], 11),
+        ];
+
+        $stepResults = [
+            10 => $this->createStepResult(TestResult::PASSED),
+            11 => $this->createStepResult(TestResult::FAILED),
+        ];
+
+        $background = new BackgroundNode('', $steps, 'Background', 2);
+        $feature    = new FeatureNode('', '', [], $background, [], 'Feature', 'en', 'feature/my-feature.feature', 1);
+        $scenario   = new ScenarioNode('My Scenario', [], [], 'Scenario', 1);
+        $result     = $this->createTestResult(TestResult::PASSED);
+
+        $this->printer->printScenario($this->formatter, $feature, $scenario, $stepResults, $result);
+
+        $this->assertOutput("==== [Scenario-passed]My Scenario\n\n.Background\nPassing:0\nFailing:99\n\n");
     }
 
     protected function setUp()
     {
         parent::setUp();
 
-        $this->printer = new AsciiDocScenarioPrinter();
+        $this->printer = new AsciiDocScenarioPrinter(new FakeStepPrinter(), new FakeResultFormatter());
     }
 }
