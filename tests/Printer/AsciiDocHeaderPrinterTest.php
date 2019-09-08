@@ -12,11 +12,10 @@ class AsciiDocHeaderPrinterTest extends PrinterTestCase
 {
     public function test_print_header_should_print_title_and_toc()
     {
-        $printer = new AsciiDocHeaderPrinter('index.adoc', 'Document Title');
+        $printer = new AsciiDocHeaderPrinter('Document Title');
 
         $printer->printHeader($this->formatter);
 
-        $this->assertFilename('index.adoc');
         $this->assertOutput(
             "= Document Title\n" .
             ":doctype: book\n" .

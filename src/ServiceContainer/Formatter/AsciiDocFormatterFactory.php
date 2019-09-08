@@ -15,6 +15,7 @@ use Behat\Testwork\Output\ServiceContainer\OutputExtension;
 use Digitalnoise\Behat\AsciiDocFormatter\EventListener\ExerciseListener;
 use Digitalnoise\Behat\AsciiDocFormatter\EventListener\OutlineListener;
 use Digitalnoise\Behat\AsciiDocFormatter\EventListener\ScenarioListener;
+use Digitalnoise\Behat\AsciiDocFormatter\EventListener\SplitFiles;
 use Digitalnoise\Behat\AsciiDocFormatter\EventListener\SuiteListener;
 use Digitalnoise\Behat\AsciiDocFormatter\Output\AsciiDocOutputPrinter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocFeaturePrinter;
@@ -78,6 +79,7 @@ class AsciiDocFormatterFactory implements FormatterFactory
             ChainEventListener::class,
             [
                 [
+                    new Definition(SplitFiles::class),
                     new Definition(ExerciseListener::class, [new Reference(self::HEADER_PRINTER_ID)]),
                     new Definition(SuiteListener::class, [new Reference(self::SUITE_PRINTER_ID)]),
                     new Definition(
@@ -136,7 +138,7 @@ class AsciiDocFormatterFactory implements FormatterFactory
 
         $container->setDefinition(
             self::HEADER_PRINTER_ID,
-            new Definition(AsciiDocHeaderPrinter::class, ['%asciidoc.filename%', '%asciidoc.title%'])
+            new Definition(AsciiDocHeaderPrinter::class, ['%asciidoc.title%'])
         );
 
         $container->setDefinition(self::SETUP_PRINTER_ID, new Definition(AsciiDocSetupPrinter::class));

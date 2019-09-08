@@ -3,30 +3,92 @@ declare(strict_types=1);
 
 namespace Digitalnoise\Behat\AsciiDocFormatter\Output;
 
-use Behat\Testwork\Output\Printer\Factory\FilesystemOutputFactory;
-use Behat\Testwork\Output\Printer\StreamOutputPrinter;
-use RuntimeException;
+use Behat\Testwork\Output\Exception\BadOutputPathException;
+use Behat\Testwork\Output\Printer\OutputPrinter;
+use Symfony\Component\Console\Output\StreamOutput;
 
 /**
  * @author Philip Weinke <philip.weinke@digitalnoise.de>
  */
-class AsciiDocOutputPrinter extends StreamOutputPrinter
+class AsciiDocOutputPrinter implements OutputPrinter
 {
+    /**
+     * @var string
+     */
+    private $outputPath;
+
+    /**
+     * @var StreamOutput
+     */
+    private $stream;
+
+    public function setOutputStyles(array $styles)
+    {
+    }
+
+    public function getOutputStyles()
+    {
+        return [];
+    }
+
+    public function setOutputDecorated($decorated)
+    {
+    }
+
+    public function isOutputDecorated()
+    {
+        return false;
+    }
+
+    public function setOutputVerbosity($level)
+    {
+    }
+
+    public function getOutputVerbosity()
+    {
+    }
+
+    public function writeln($messages = '')
+    {
+        $this->stream->write($messages, true);
+    }
+
+    public function write($messages)
+    {
+        $this->stream->write($messages);
+    }
+
     public function setFilename(string $filename): void
     {
-        $outputFactory = $this->getOutputFactory();
-        if (!$outputFactory instanceof FilesystemOutputFactory) {
-            throw new RuntimeException(
-                sprintf('Expected "%s", got "%s"', FilesystemOutputFactory::class, get_class($outputFactory))
+        if (is_file($this->getOutputPath())) {
+            throw new BadOutputPathException(
+                'Directory expected for the `output_path` option, but a filename was given.',
+                $this->getOutputPath()
             );
+        } elseif (!is_dir($this->getOutputPath())) {
+            mkdir($this->getOutputPath(), 0777, true);
         }
 
-        $path = dirname(sprintf('%s/%s', $outputFactory->getOutputPath(), $filename));
+        $filePath = sprintf('%s/%s', $this->outputPath, $filename);
+        $path     = dirname($filePath);
         if (!is_dir($path)) {
             mkdir($path, 0777, true);
         }
 
-        $outputFactory->setFileName($filename);
-        $this->flush();
+        $this->stream = new StreamOutput(fopen($filePath, 'a'), StreamOutput::VERBOSITY_NORMAL, false);
+    }
+
+    public function getOutputPath()
+    {
+        return $this->outputPath;
+    }
+
+    public function setOutputPath($path)
+    {
+        $this->outputPath = $path;
+    }
+
+    public function flush()
+    {
     }
 }

@@ -20,6 +20,5 @@ default:
             output_path: '%paths.base%/reports'
     extensions:
         Digitalnoise\Behat\AsciiDocFormatter:
-            filename: my-project.adoc
             title: My Project Title
 ```

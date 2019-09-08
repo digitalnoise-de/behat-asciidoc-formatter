@@ -45,7 +45,6 @@ class AsciiDocFormatterExtension implements BehatExtension
     {
         $builder
             ->children()
-                ->scalarNode('filename')->defaultValue('index.adoc')->end()
                 ->scalarNode('title')->defaultValue('Living Documentation')->end()
                 ->arrayNode('formatting')
                     ->addDefaultsIfNotSet()
@@ -83,7 +82,6 @@ class AsciiDocFormatterExtension implements BehatExtension
 
     public function load(ContainerBuilder $container, array $config)
     {
-        $container->setParameter('asciidoc.filename', $config['filename']);
         $container->setParameter('asciidoc.title', $config['title']);
         $container->setParameter('asciidoc.formatting', $config['formatting']);
     }
