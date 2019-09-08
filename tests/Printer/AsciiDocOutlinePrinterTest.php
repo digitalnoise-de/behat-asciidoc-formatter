@@ -39,7 +39,7 @@ class AsciiDocOutlinePrinterTest extends PrinterTestCase
             [
                 'My Outline',
                 '',
-                '[cols="2%,49%,49%", options="header", caption=]',
+                '[cols="4%,~,~", options="header", caption=]',
                 '.Examples',
                 '|===',
                 '| | Username | E-Mail',

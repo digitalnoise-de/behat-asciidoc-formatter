@@ -18,7 +18,7 @@ use Behat\Testwork\Tester\Result\TestResults;
  */
 class AsciiDocOutlinePrinter
 {
-    private const ICON_COLUMN_PERCENTAGE = 2;
+    private const ICON_COLUMN_PERCENTAGE = 4;
 
     /**
      * @var AsciiDocScenarioPrinter
@@ -52,9 +52,8 @@ class AsciiDocOutlinePrinter
 
         $this->scenarioPrinter->printScenario($formatter, $feature, $outline, [], $result);
 
-        $header     = $outline->getExampleTable()->getRow(0);
-        $columnWith = sprintf('%s%%', round((100 - self::ICON_COLUMN_PERCENTAGE) / count($header)));
-        $cols       = sprintf('%s%%%s', self::ICON_COLUMN_PERCENTAGE, str_repeat(',' . $columnWith, count($header)));
+        $header = $outline->getExampleTable()->getRow(0);
+        $cols   = sprintf('%s%%%s', self::ICON_COLUMN_PERCENTAGE, str_repeat(',~', count($header)));
 
         $outputPrinter->writeln();
         $outputPrinter->writeln(sprintf('[cols="%s", options="header", caption=]', $cols));
