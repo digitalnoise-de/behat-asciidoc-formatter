@@ -11,6 +11,7 @@ use Behat\Behat\EventDispatcher\Event\ExampleTested;
 use Behat\Gherkin\Node\ExampleNode;
 use Behat\Testwork\Output\Formatter;
 use Behat\Testwork\Output\Node\EventListener\EventListener;
+use Digitalnoise\Behat\AsciiDocFormatter\Output\AsciiDocOutputPrinter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocOutlinePrinter;
 use PHPUnit\Framework\TestResult;
 use Symfony\Component\EventDispatcher\Event;
@@ -92,5 +93,9 @@ class OutlineListener implements EventListener
         }
 
         $this->outlinePrinter->printFooter($formatter);
+
+        /** @var AsciiDocOutputPrinter $outputPrinter */
+        $outputPrinter = $formatter->getOutputPrinter();
+        $outputPrinter->pageBreak();
     }
 }

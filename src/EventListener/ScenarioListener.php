@@ -8,6 +8,7 @@ use Behat\Behat\EventDispatcher\Event\AfterStepTested;
 use Behat\Behat\EventDispatcher\Event\BeforeScenarioTested;
 use Behat\Behat\EventDispatcher\Event\StepTested;
 use Behat\Testwork\Output\Formatter;
+use Digitalnoise\Behat\AsciiDocFormatter\Output\AsciiDocOutputPrinter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocScenarioPrinter;
 use Symfony\Component\EventDispatcher\Event;
 
@@ -24,7 +25,7 @@ class ScenarioListener
     /**
      * @var StepTested[]
      */
-    private $stepEvents;
+    private $stepResults;
 
     /**
      * @param AsciiDocScenarioPrinter $scenarioPrinter
@@ -40,27 +41,25 @@ class ScenarioListener
     public function listenEvent(Formatter $formatter, Event $event, $eventName)
     {
         if ($event instanceof BeforeScenarioTested) {
-            $this->stepEvents = [];
+            $this->stepResults = [];
         }
 
         if ($event instanceof AfterStepTested) {
-            $this->stepEvents[] = $event;
+            $this->stepResults[$event->getStep()->getLine()] = $event->getTestResult();
         }
 
         if ($event instanceof AfterScenarioTested) {
-            $stepResults = [];
-
-            foreach ($this->stepEvents as $stepEvent) {
-                $stepResults[$stepEvent->getStep()->getLine()] = $stepEvent->getTestResult();
-            }
-
             $this->scenarioPrinter->printScenario(
                 $formatter,
                 $event->getFeature(),
                 $event->getScenario(),
-                $stepResults,
+                $this->stepResults,
                 $event->getTestResult()
             );
+
+            /** @var AsciiDocOutputPrinter $outputPrinter */
+            $outputPrinter = $formatter->getOutputPrinter();
+            $outputPrinter->pageBreak();
         }
     }
 }

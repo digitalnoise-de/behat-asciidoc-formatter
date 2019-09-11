@@ -48,11 +48,6 @@ class AsciiDocOutputPrinter implements OutputPrinter
     {
     }
 
-    public function writeln($messages = '')
-    {
-        $this->stream->write($messages, true);
-    }
-
     public function write($messages)
     {
         $this->stream->write($messages);
@@ -90,5 +85,17 @@ class AsciiDocOutputPrinter implements OutputPrinter
 
     public function flush()
     {
+    }
+
+    public function pageBreak(): void
+    {
+        $this->writeln();
+        $this->writeln('<<<');
+        $this->writeln();
+    }
+
+    public function writeln($messages = '')
+    {
+        $this->stream->write($messages, true);
     }
 }
