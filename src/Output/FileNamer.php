@@ -8,10 +8,13 @@ use Behat\Gherkin\Node\ScenarioInterface;
 use Behat\Testwork\Suite\Suite;
 use InvalidArgumentException;
 
+/**
+ * @author Philip Weinke <philip.weinke@digitalnoise.de>
+ */
 class FileNamer
 {
     /**
-     * @param Suite|FeatureNode|ScenarioInterface ...$items
+     * @param Suite|FeatureNode|ScenarioInterface $items,...
      *
      * @return string
      */
@@ -38,7 +41,7 @@ class FileNamer
         }
 
         if ($item instanceof FeatureNode) {
-            return $this->cleanUp($item->getTitle());
+            return $this->cleanUp(str_replace('.feature', '', $item->getFile()));
         }
 
         if ($item instanceof ScenarioInterface) {

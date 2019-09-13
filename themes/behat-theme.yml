@@ -1,0 +1,16 @@
+extends: default
+role:
+    scenario-passed:
+        font-color: #00aa55
+    scenario-failed:
+        font-color: #b50000
+    scenario-undefined:
+        font-color: #b8860b
+    step-passed:
+        font-color: #292929
+    step-failed:
+        font-color: #b50000
+    step-skipped:
+        font-color: #aaaaaa
+    step-undefined:
+        font-color: #b8860b

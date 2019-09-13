@@ -9,15 +9,17 @@ use Behat\Behat\Output\Node\EventListener\AST\FeatureListener;
 use Behat\Behat\Output\Node\EventListener\Flow\FireOnlySiblingsListener;
 use Behat\Testwork\Output\Node\EventListener\ChainEventListener;
 use Behat\Testwork\Output\NodeEventListeningFormatter;
-use Behat\Testwork\Output\Printer\Factory\FilesystemOutputFactory;
 use Behat\Testwork\Output\ServiceContainer\Formatter\FormatterFactory;
 use Behat\Testwork\Output\ServiceContainer\OutputExtension;
 use Digitalnoise\Behat\AsciiDocFormatter\EventListener\ExerciseListener;
+use Digitalnoise\Behat\AsciiDocFormatter\EventListener\FileSplitter;
 use Digitalnoise\Behat\AsciiDocFormatter\EventListener\OutlineListener;
+use Digitalnoise\Behat\AsciiDocFormatter\EventListener\Resetter;
 use Digitalnoise\Behat\AsciiDocFormatter\EventListener\ScenarioListener;
-use Digitalnoise\Behat\AsciiDocFormatter\EventListener\SplitFiles;
 use Digitalnoise\Behat\AsciiDocFormatter\EventListener\SuiteListener;
 use Digitalnoise\Behat\AsciiDocFormatter\Output\AsciiDocOutputPrinter;
+use Digitalnoise\Behat\AsciiDocFormatter\Output\FileNamer;
+use Digitalnoise\Behat\AsciiDocFormatter\Output\OutputDirectoryResetter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocFeaturePrinter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocHeaderPrinter;
 use Digitalnoise\Behat\AsciiDocFormatter\Printer\AsciiDocOutlinePrinter;
@@ -79,7 +81,11 @@ class AsciiDocFormatterFactory implements FormatterFactory
             ChainEventListener::class,
             [
                 [
-                    new Definition(SplitFiles::class),
+                    new Definition(
+                        Resetter::class,
+                        [new Definition(OutputDirectoryResetter::class, [__DIR__ . '/../../../themes'])]
+                    ),
+                    new Definition(FileSplitter::class, [new Definition(FileNamer::class)]),
                     new Definition(ExerciseListener::class, [new Reference(self::HEADER_PRINTER_ID)]),
                     new Definition(SuiteListener::class, [new Reference(self::SUITE_PRINTER_ID)]),
                     new Definition(
@@ -178,7 +184,7 @@ class AsciiDocFormatterFactory implements FormatterFactory
      */
     private function createOutputPrinterDefinition(): Definition
     {
-        return new Definition(AsciiDocOutputPrinter::class, [new Definition(FilesystemOutputFactory::class)]);
+        return new Definition(AsciiDocOutputPrinter::class);
     }
 
     /**

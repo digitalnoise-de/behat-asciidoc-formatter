@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Digitalnoise\Behat\AsciiDocFormatter\Tests\Output;
+namespace Digitalnoise\Behat\AsciiDocFormatter\Tests\EventListener;
 
 use Behat\Behat\Context\Environment\InitializedContextEnvironment;
 use Behat\Behat\EventDispatcher\Event\AfterFeatureTested;
@@ -20,7 +20,7 @@ use Behat\Testwork\Specification\SpecificationArrayIterator;
 use Behat\Testwork\Suite\GenericSuite;
 use Behat\Testwork\Tester\Result\TestResult;
 use Behat\Testwork\Tester\Setup\Teardown;
-use Digitalnoise\Behat\AsciiDocFormatter\EventListener\SplitFiles;
+use Digitalnoise\Behat\AsciiDocFormatter\EventListener\FileSplitter;
 use Digitalnoise\Behat\AsciiDocFormatter\Tests\Printer\FakeAsciiDocOutputPrinter;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @author Philip Weinke <philip.weinke@digitalnoise.de>
  */
-class SplitFilesTest extends TestCase
+class FileSplitterTest extends TestCase
 {
     /**
      * @var FakeAsciiDocOutputPrinter
@@ -41,11 +41,11 @@ class SplitFilesTest extends TestCase
     private $formatter;
 
     /**
-     * @var SplitFiles
+     * @var FileSplitter
      */
     private $listener;
 
-    public function test_suite_should_be_named_after_suite_name()
+    public function test_suite_should_be_named()
     {
         $suite = new GenericSuite('My Suite', []);
         $env   = new InitializedContextEnvironment($suite);
@@ -53,19 +53,19 @@ class SplitFilesTest extends TestCase
 
         $this->listener->listenEvent($this->formatter, $event, '');
 
-        self::assertEquals('my-suite.adoc', $this->outputPrinter->getCurrentFilename());
+        self::assertEquals('My Suite', $this->outputPrinter->getCurrentFilename());
     }
 
     public function test_suite_should_include_features()
     {
-        $feature1 = new FeatureNode('Feature 1', '', [], null, [], 'Feature', 'en', 'feature/feature-1.feature', 1);
-        $feature2 = new FeatureNode('Feature 2', '', [], null, [], 'Feature', 'en', 'feature/feature-1.feature', 1);
-
         $suite = new GenericSuite('My Suite', []);
         $env   = new InitializedContextEnvironment($suite);
         $event = new AfterSuiteTested(
             $env,
-            new SpecificationArrayIterator($suite, [$feature1, $feature2]),
+            new SpecificationArrayIterator(
+                $suite,
+                [$this->createFeature('Feature 1'), $this->createFeature('Feature 2')]
+            ),
             $this->createMock(TestResult::class),
             $this->createMock(Teardown::class)
         );
@@ -74,39 +74,38 @@ class SplitFilesTest extends TestCase
 
         self::assertEquals(
             "ifndef::no-includes[]\n" .
-            "include::my-suite/feature-1.adoc[]\n" .
-            "include::my-suite/feature-2.adoc[]\n" .
+            "include::My Suite/Feature 1[]\n" .
+            "include::My Suite/Feature 2[]\n" .
             "endif::[]\n",
             $this->outputPrinter->getOutput()
         );
     }
 
-    public function test_feature_should_be_named_after_feature_title_and_placed_in_suite_directory()
+    /**
+     * @param string $title
+     * @param array  $scenarios
+     *
+     * @return FeatureNode
+     */
+    private function createFeature(string $title, array $scenarios = []): FeatureNode
     {
-        $env     = new InitializedContextEnvironment(new GenericSuite('My Suite', []));
-        $feature = new FeatureNode('My Feature', '', [], null, [], 'Feature', 'en', 'feature/my-feature.feature', 1);
-        $event   = new BeforeFeatureTested($env, $feature);
+        return new FeatureNode($title, '', [], null, $scenarios, '', '', '', 1);
+    }
+
+    public function test_feature_should_be_named_after_feature_and_suite()
+    {
+        $env   = new InitializedContextEnvironment(new GenericSuite('My Suite', []));
+        $event = new BeforeFeatureTested($env, $this->createFeature('My Feature'));
 
         $this->listener->listenEvent($this->formatter, $event, '');
 
-        self::assertEquals('my-suite/my-feature.adoc', $this->outputPrinter->getCurrentFilename());
+        self::assertEquals('My Suite/My Feature', $this->outputPrinter->getCurrentFilename());
     }
 
     public function test_feature_should_include_scenarios()
     {
-        $scenario1 = new ScenarioNode('', [], [], 'Scenario', 4);
-        $scenario2 = new ScenarioNode('', [], [], 'Scenario', 10);
-        $scenario3 = new ScenarioNode('', [], [], 'Scenario', 24);
-
         $env     = new InitializedContextEnvironment(new GenericSuite('My Suite', []));
-        $feature = new FeatureNode(
-            'My Feature', '', [], null,
-            [$scenario1, $scenario2, $scenario3],
-            '',
-            '',
-            '',
-            1
-        );
+        $feature = $this->createFeature('My Feature', [$this->createScenario('1'), $this->createScenario('2')]);
         $event   = new AfterFeatureTested(
             $env,
             $feature,
@@ -118,43 +117,47 @@ class SplitFilesTest extends TestCase
 
         self::assertEquals(
             "ifndef::no-includes[]\n" .
-            "include::my-feature/004.adoc[]\n" .
-            "include::my-feature/010.adoc[]\n" .
-            "include::my-feature/024.adoc[]\n" .
+            "include::My Feature/1[]\n" .
+            "include::My Feature/2[]\n" .
             "endif::[]\n",
             $this->outputPrinter->getOutput()
         );
     }
 
-    public function test_scenario_should_be_named_after_the_line_number_and_placed_in_scenario_directory()
+    private function createScenario(string $title): ScenarioNode
+    {
+        return new ScenarioNode($title, [], [], '', 1);
+    }
+
+    public function test_scenario_should_be_named_after_suite_feature_and_scenario()
     {
         $env      = new InitializedContextEnvironment(new GenericSuite('My Suite', []));
         $feature  = new FeatureNode('My Feature', '', [], null, [], 'Feature', 'en', 'feature/my-feature.feature', 1);
-        $scenario = new ScenarioNode('', [], [], 'Given', 4);
+        $scenario = new ScenarioNode('My Scenario', [], [], 'Given', 4);
         $event    = new BeforeScenarioTested($env, $feature, $scenario);
 
         $this->listener->listenEvent($this->formatter, $event, '');
 
-        self::assertEquals('my-suite/my-feature/004.adoc', $this->outputPrinter->getCurrentFilename());
+        self::assertEquals('My Suite/My Feature/My Scenario', $this->outputPrinter->getCurrentFilename());
     }
 
     public function test_outlines_should_be_named_like_scenarios()
     {
         $env     = new InitializedContextEnvironment(new GenericSuite('My Suite', []));
-        $feature = new FeatureNode('My Feature', '', [], null, [], 'Feature', 'en', 'feature/my-feature.feature', 1);
-        $outline = new OutlineNode('', [], [], new ExampleTableNode([], 'Examples'), 'Outline', 12);
+        $feature = $this->createFeature('My Feature');
+        $outline = new OutlineNode('My Outline', [], [], new ExampleTableNode([], 'Examples'), 'Outline', 12);
         $event   = new BeforeOutlineTested($env, $feature, $outline);
 
         $this->listener->listenEvent($this->formatter, $event, '');
 
-        self::assertEquals('my-suite/my-feature/012.adoc', $this->outputPrinter->getCurrentFilename());
+        self::assertEquals('My Suite/My Feature/My Outline', $this->outputPrinter->getCurrentFilename());
     }
 
     public function test_examples_should_be_kept_in_the_outlines_file()
     {
         $env     = new InitializedContextEnvironment(new GenericSuite('My Suite', []));
-        $feature = new FeatureNode('My Feature', '', [], null, [], 'Feature', 'en', 'feature/my-feature.feature', 1);
-        $outline = new OutlineNode('', [], [], new ExampleTableNode([], 'Examples'), 'Outline', 12);
+        $feature = $this->createFeature('My Feature');
+        $outline = new OutlineNode('My Outline', [], [], new ExampleTableNode([], 'Examples'), 'Outline', 12);
         $event   = new BeforeOutlineTested($env, $feature, $outline);
 
         $this->listener->listenEvent($this->formatter, $event, '');
@@ -163,7 +166,7 @@ class SplitFilesTest extends TestCase
         $event   = new BeforeScenarioTested($env, $feature, $example);
         $this->listener->listenEvent($this->formatter, $event, '');
 
-        self::assertEquals('my-suite/my-feature/012.adoc', $this->outputPrinter->getCurrentFilename());
+        self::assertEquals('My Suite/My Feature/My Outline', $this->outputPrinter->getCurrentFilename());
     }
 
     protected function setUp()
@@ -175,6 +178,6 @@ class SplitFilesTest extends TestCase
         $this->formatter = $this->createMock(Formatter::class);
         $this->formatter->method('getOutputPrinter')->willReturn($this->outputPrinter);
 
-        $this->listener = new SplitFiles();
+        $this->listener = new FileSplitter(new FakeFileNamer());
     }
 }

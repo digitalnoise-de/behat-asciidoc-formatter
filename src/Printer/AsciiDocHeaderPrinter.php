@@ -35,6 +35,8 @@ class AsciiDocHeaderPrinter
         $printer->writeln(':icons: font');
         $printer->writeln(':toc:');
         $printer->writeln(':toclevels: 3');
+        $printer->writeln(':pdf-theme: behat');
+        $printer->writeln(':pdf-themesdir: themes');
         $printer->writeln();
     }
 }

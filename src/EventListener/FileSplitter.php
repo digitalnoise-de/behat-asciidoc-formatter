@@ -8,29 +8,44 @@ use Behat\Behat\EventDispatcher\Event\BeforeOutlineTested;
 use Behat\Behat\EventDispatcher\Event\BeforeScenarioTested;
 use Behat\Behat\EventDispatcher\Event\FeatureTested;
 use Behat\Gherkin\Node\ExampleNode;
-use Behat\Gherkin\Node\FeatureNode;
-use Behat\Gherkin\Node\ScenarioInterface;
 use Behat\Testwork\EventDispatcher\Event\AfterExerciseCompleted;
 use Behat\Testwork\EventDispatcher\Event\AfterSuiteTested;
 use Behat\Testwork\EventDispatcher\Event\ExerciseCompleted;
 use Behat\Testwork\EventDispatcher\Event\SuiteTested;
 use Behat\Testwork\Output\Formatter;
 use Behat\Testwork\Output\Node\EventListener\EventListener;
-use Behat\Testwork\Suite\Suite;
 use Digitalnoise\Behat\AsciiDocFormatter\Output\AsciiDocOutputPrinter;
-use InvalidArgumentException;
+use Digitalnoise\Behat\AsciiDocFormatter\Output\FileNamer;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
  * @author Philip Weinke <philip.weinke@digitalnoise.de>
  */
-class SplitFiles implements EventListener
+class FileSplitter implements EventListener
 {
     /**
      * @var AsciiDocOutputPrinter
      */
     private $outputPrinter;
 
+    /**
+     * @var FileNamer
+     */
+    private $fileNamer;
+
+    /**
+     * @param FileNamer $fileNamer
+     */
+    public function __construct(FileNamer $fileNamer)
+    {
+        $this->fileNamer = $fileNamer;
+    }
+
+    /**
+     * @param Formatter $formatter
+     * @param Event     $event
+     * @param string    $eventName
+     */
     public function listenEvent(Formatter $formatter, Event $event, $eventName)
     {
         $this->outputPrinter = $formatter->getOutputPrinter();
@@ -65,7 +80,7 @@ class SplitFiles implements EventListener
     }
 
     /**
-     * @param string[] $filenames
+     * @param string $filenames,...
      */
     private function include(string ...$filenames): void
     {
@@ -79,51 +94,13 @@ class SplitFiles implements EventListener
     }
 
     /**
-     * @param array $items
+     * @param string $items,...
      *
      * @return string
      */
     private function buildFilename(...$items): string
     {
-        $parts = [];
-
-        foreach ($items as $item) {
-            $parts[] = $this->basename($item);
-        }
-
-        return sprintf('%s.adoc', implode('/', $parts));
-    }
-
-    /**
-     * @param $item
-     *
-     * @return string
-     */
-    private function basename($item): string
-    {
-        if ($item instanceof Suite) {
-            return $this->cleanUp($item->getName());
-        }
-
-        if ($item instanceof FeatureNode) {
-            return $this->cleanUp($item->getTitle());
-        }
-
-        if ($item instanceof ScenarioInterface) {
-            return sprintf('%03d', $item->getLine());
-        }
-
-        throw new InvalidArgumentException('Unsupported argument');
-    }
-
-    /**
-     * @param string $filename
-     *
-     * @return string
-     */
-    private function cleanUp(string $filename): string
-    {
-        return strtolower(trim(preg_replace('/[^[:alnum:]-]+/', '-', $filename), '-'));
+        return $this->fileNamer->nameFor(...$items);
     }
 
     /**

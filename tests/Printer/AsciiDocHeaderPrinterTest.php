@@ -21,7 +21,9 @@ class AsciiDocHeaderPrinterTest extends PrinterTestCase
             ":doctype: book\n" .
             ":icons: font\n" .
             ":toc:\n" .
-            ":toclevels: 3\n\n"
+            ":toclevels: 3\n" .
+            ":pdf-theme: behat\n" .
+            ":pdf-themesdir: themes\n\n"
         );
     }
 }
