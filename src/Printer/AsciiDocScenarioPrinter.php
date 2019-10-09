@@ -73,7 +73,7 @@ class AsciiDocScenarioPrinter
         }
 
         $formatter->getOutputPrinter()->writeln(
-            sprintf('==== %s', $this->resultFormatter->format($title, $scenario->getNodeType(), $result))
+            sprintf('= %s', $this->resultFormatter->format($title, $scenario->getNodeType(), $result))
         );
         $formatter->getOutputPrinter()->writeln();
     }

@@ -87,7 +87,7 @@ class FileSplitter implements EventListener
         $this->outputPrinter->writeln('ifndef::no-includes[]');
 
         foreach ($filenames as $filename) {
-            $this->outputPrinter->writeln(sprintf('include::%s[]', $filename));
+            $this->outputPrinter->writeln(sprintf('include::%s[leveloffset=+1]', $filename));
         }
 
         $this->outputPrinter->writeln('endif::[]');

@@ -56,7 +56,7 @@ class FileSplitterTest extends TestCase
         self::assertEquals('My Suite', $this->outputPrinter->getCurrentFilename());
     }
 
-    public function test_suite_should_include_features()
+    public function test_suite_should_include_features_with_leveloffset()
     {
         $suite = new GenericSuite('My Suite', []);
         $env   = new InitializedContextEnvironment($suite);
@@ -74,8 +74,8 @@ class FileSplitterTest extends TestCase
 
         self::assertEquals(
             "ifndef::no-includes[]\n" .
-            "include::My Suite/Feature 1[]\n" .
-            "include::My Suite/Feature 2[]\n" .
+            "include::My Suite/Feature 1[leveloffset=+1]\n" .
+            "include::My Suite/Feature 2[leveloffset=+1]\n" .
             "endif::[]\n",
             $this->outputPrinter->getOutput()
         );
@@ -102,7 +102,7 @@ class FileSplitterTest extends TestCase
         self::assertEquals('My Suite/My Feature', $this->outputPrinter->getCurrentFilename());
     }
 
-    public function test_feature_should_include_scenarios()
+    public function test_feature_should_include_scenarios_with_leveloffset()
     {
         $env     = new InitializedContextEnvironment(new GenericSuite('My Suite', []));
         $feature = $this->createFeature('My Feature', [$this->createScenario('1'), $this->createScenario('2')]);
@@ -117,8 +117,8 @@ class FileSplitterTest extends TestCase
 
         self::assertEquals(
             "ifndef::no-includes[]\n" .
-            "include::My Feature/1[]\n" .
-            "include::My Feature/2[]\n" .
+            "include::My Feature/1[leveloffset=+1]\n" .
+            "include::My Feature/2[leveloffset=+1]\n" .
             "endif::[]\n",
             $this->outputPrinter->getOutput()
         );

@@ -30,7 +30,7 @@ class AsciiDocScenarioPrinterTest extends PrinterTestCase
 
         $this->printer->printScenario($this->formatter, $feature, $scenario, [], $result);
 
-        $this->assertOutput("==== [Scenario-passed]My Scenario\n\n");
+        $this->assertOutput("= [Scenario-passed]My Scenario\n\n");
     }
 
     public function test_filename_should_be_used_as_title_if_there_is_no_title()
@@ -41,7 +41,7 @@ class AsciiDocScenarioPrinterTest extends PrinterTestCase
 
         $this->printer->printScenario($this->formatter, $feature, $scenario, [], $result);
 
-        $this->assertOutput("==== [Scenario-passed]feature/my-feature.feature:1\n\n");
+        $this->assertOutput("= [Scenario-passed]feature/my-feature.feature:1\n\n");
     }
 
     public function test_steps_should_be_printed_with_the_correct_results()
@@ -62,7 +62,7 @@ class AsciiDocScenarioPrinterTest extends PrinterTestCase
 
         $this->printer->printScenario($this->formatter, $feature, $scenario, $stepResults, $result);
 
-        $this->assertOutput("==== [Scenario-passed]My Scenario\n\nPassing:0\nFailing:99\n\n");
+        $this->assertOutput("= [Scenario-passed]My Scenario\n\nPassing:0\nFailing:99\n\n");
     }
 
     /**
@@ -89,7 +89,7 @@ class AsciiDocScenarioPrinterTest extends PrinterTestCase
 
         $this->printer->printScenario($this->formatter, $feature, $scenario, $stepResults, $result);
 
-        $this->assertOutput("==== [Scenario-passed]My Scenario\n\nPassing:30\n\n");
+        $this->assertOutput("= [Scenario-passed]My Scenario\n\nPassing:30\n\n");
     }
 
     public function test_background_should_be_printed()
@@ -111,7 +111,7 @@ class AsciiDocScenarioPrinterTest extends PrinterTestCase
 
         $this->printer->printScenario($this->formatter, $feature, $scenario, $stepResults, $result);
 
-        $this->assertOutput("==== [Scenario-passed]My Scenario\n\n.Background\nPassing:0\nFailing:99\n\n");
+        $this->assertOutput("= [Scenario-passed]My Scenario\n\n.Background\nPassing:0\nFailing:99\n\n");
     }
 
     protected function setUp()

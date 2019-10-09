@@ -16,7 +16,7 @@ class AsciiDocSuitePrinter implements SuitePrinter
     {
         $printer = $formatter->getOutputPrinter();
 
-        $printer->writeln(sprintf('== %s', $suite->getName()));
+        $printer->writeln(sprintf('= %s', $suite->getName()));
         $printer->writeln();
     }
 

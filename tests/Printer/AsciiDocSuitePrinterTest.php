@@ -22,7 +22,7 @@ class AsciiDocSuitePrinterTest extends PrinterTestCase
 
         $this->printer->printHeader($this->formatter, $suite);
 
-        $this->assertOutput("== default\n\n");
+        $this->assertOutput("= default\n\n");
     }
 
     protected function setUp()

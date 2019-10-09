@@ -24,7 +24,7 @@ class AsciiDocFeaturePrinterTest extends PrinterTestCase
 
         $this->printer->printHeader($this->formatter, $feature);
 
-        $this->assertOutput("=== My Feature\n\n");
+        $this->assertOutput("= My Feature\n\n");
     }
 
     private function createFeatureNode($title, $description = '', array $tags = []): FeatureNode
@@ -38,7 +38,7 @@ class AsciiDocFeaturePrinterTest extends PrinterTestCase
 
         $this->printer->printHeader($this->formatter, $feature);
 
-        $this->assertOutput("=== feature/my-feature.feature\n\n");
+        $this->assertOutput("= feature/my-feature.feature\n\n");
     }
 
     public function test_print_header_should_print_single_line_of_formatted_tags_with_icon()
@@ -47,7 +47,7 @@ class AsciiDocFeaturePrinterTest extends PrinterTestCase
 
         $this->printer->printHeader($this->formatter, $feature);
 
-        $this->assertOutput("=== My Feature\nicon:tags[] ui registration\n\n");
+        $this->assertOutput("= My Feature\nicon:tags[] ui registration\n\n");
     }
 
     public function test_print_header_should_print_description_as_a_block()
@@ -56,7 +56,7 @@ class AsciiDocFeaturePrinterTest extends PrinterTestCase
 
         $this->printer->printHeader($this->formatter, $feature);
 
-        $this->assertOutput("=== My Feature\n\n****\nMultiline +\nFeature +\nDescription\n****\n\n");
+        $this->assertOutput("= My Feature\n\n****\nMultiline +\nFeature +\nDescription\n****\n\n");
     }
 
     protected function setUp()

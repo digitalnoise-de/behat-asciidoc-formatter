@@ -40,7 +40,7 @@ class AsciiDocFeaturePrinter implements FeaturePrinter
             $title = $feature->getFile();
         }
 
-        $printer->writeln(sprintf('=== %s', $title));
+        $printer->writeln(sprintf('= %s', $title));
     }
 
     /**
