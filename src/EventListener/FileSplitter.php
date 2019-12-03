@@ -63,7 +63,7 @@ class FileSplitter implements EventListener
     private function handleExercise(Event $event): void
     {
         if ($event instanceof ExerciseCompleted) {
-            $this->outputPrinter->setFilename('index.adoc');
+            $this->outputPrinter->setFilename($this->fileNamer->indexName());
         }
 
         if ($event instanceof AfterExerciseCompleted) {
@@ -85,11 +85,7 @@ class FileSplitter implements EventListener
     private function include(string ...$filenames): void
     {
         $this->outputPrinter->writeln('ifndef::no-includes[]');
-
-        foreach ($filenames as $filename) {
-            $this->outputPrinter->writeln(sprintf('include::%s[leveloffset=+1]', $filename));
-        }
-
+        $this->outputPrinter->include(...$filenames);
         $this->outputPrinter->writeln('endif::[]');
     }
 
@@ -136,7 +132,7 @@ class FileSplitter implements EventListener
 
             $filenames = [];
             foreach ($feature->getScenarios() as $scenario) {
-                $filenames[] = $this->buildFilename($feature, $scenario);
+                $filenames[] = $this->buildFilename($event->getSuite(), $feature, $scenario);
             }
 
             $this->include(...$filenames);

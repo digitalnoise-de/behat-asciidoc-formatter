@@ -19,7 +19,10 @@ class FileNamerTest extends TestCase
     {
         $suite = new GenericSuite('My Suite', []);
 
-        self::assertEquals('my-suite.adoc', $this->fileNamer->nameFor($suite));
+        self::assertEquals(
+            'suites/my-suite.adoc',
+            $this->fileNamer->nameFor($suite)
+        );
     }
 
     public function test_feature_should_be_named_after_feature_file_and_placed_in_suite_directory()
@@ -27,7 +30,10 @@ class FileNamerTest extends TestCase
         $suite   = new GenericSuite('My Suite', []);
         $feature = new FeatureNode('My Feature', '', [], null, [], '', '', 'my_feature_file.feature', 1);
 
-        self::assertEquals('my-suite/my-feature-file.adoc', $this->fileNamer->nameFor($suite, $feature));
+        self::assertEquals(
+            'suites/my-suite/my-feature-file.adoc',
+            $this->fileNamer->nameFor($suite, $feature)
+        );
     }
 
     public function test_scenario_should_be_named_after_scenario_line_number_and_placed_in_feature_directory()
@@ -36,7 +42,10 @@ class FileNamerTest extends TestCase
         $feature  = new FeatureNode('My Feature', '', [], null, [], '', '', 'my_feature_file.feature', 1);
         $scenario = new ScenarioNode('My Scenario', [], [], 'Given', 10);
 
-        self::assertEquals('my-suite/my-feature-file/010.adoc', $this->fileNamer->nameFor($suite, $feature, $scenario));
+        self::assertEquals(
+            'suites/my-suite/my-feature-file/010.adoc',
+            $this->fileNamer->nameFor($suite, $feature, $scenario)
+        );
     }
 
     protected function setUp()

@@ -9,7 +9,10 @@ use Behat\Testwork\Call\Call;
 use Behat\Testwork\Call\CallResult;
 use Behat\Testwork\Output\Formatter;
 use Behat\Testwork\Tester\Result\TestResult;
+use Digitalnoise\Behat\AsciiDocFormatter\Output\AsciiDocOutputPrinter;
 use Exception;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -24,7 +27,12 @@ abstract class PrinterTestCase extends TestCase
     protected $formatter;
 
     /**
-     * @var FakeAsciiDocOutputPrinter
+     * @var vfsStreamDirectory
+     */
+    private $outputDirectory;
+
+    /**
+     * @var AsciiDocOutputPrinter
      */
     private $outputPrinter;
 
@@ -33,7 +41,9 @@ abstract class PrinterTestCase extends TestCase
      */
     protected function assertOutput(string $expected): void
     {
-        self::assertEquals($expected, $this->outputPrinter->getOutput());
+        $output = $this->outputDirectory->getChild('output')->getContent();
+
+        self::assertEquals($expected, $output);
     }
 
     /**
@@ -41,7 +51,7 @@ abstract class PrinterTestCase extends TestCase
      */
     protected function assertOutputArray(array $rows): void
     {
-        $output = $this->outputPrinter->getOutput();
+        $output = $this->outputDirectory->getChild('output')->getContent();
         if ($output[-1] === "\n") {
             $output = substr($output, 0, strlen($output) - 1);
         }
@@ -49,19 +59,15 @@ abstract class PrinterTestCase extends TestCase
         self::assertEquals($rows, explode("\n", $output));
     }
 
-    /**
-     * @param string $expected
-     */
-    protected function assertFilename(string $expected): void
-    {
-        self::assertEquals($expected, $this->outputPrinter->getCurrentFilename());
-    }
-
     protected function setUp()
     {
         parent::setUp();
 
-        $this->outputPrinter = new FakeAsciiDocOutputPrinter();
+        $this->outputDirectory = vfsStream::setup();
+
+        $this->outputPrinter = new AsciiDocOutputPrinter();
+        $this->outputPrinter->setOutputPath($this->outputDirectory->url());
+        $this->outputPrinter->setFilename('output');
 
         $this->formatter = $this->createMock(Formatter::class);
         $this->formatter->method('getOutputPrinter')->willReturn($this->outputPrinter);

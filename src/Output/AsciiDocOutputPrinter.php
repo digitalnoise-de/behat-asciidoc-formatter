@@ -22,6 +22,11 @@ class AsciiDocOutputPrinter implements OutputPrinter
      */
     private $stream;
 
+    /**
+     * @var string
+     */
+    private $filename;
+
     public function setOutputStyles(array $styles)
     {
     }
@@ -53,8 +58,13 @@ class AsciiDocOutputPrinter implements OutputPrinter
         $this->stream->write($messages);
     }
 
+    /**
+     * @param string $filename
+     */
     public function setFilename(string $filename): void
     {
+        $this->filename = $filename;
+
         if (is_file($this->getOutputPath())) {
             throw new BadOutputPathException(
                 'Directory expected for the `output_path` option, but a filename was given.',
@@ -94,8 +104,39 @@ class AsciiDocOutputPrinter implements OutputPrinter
         $this->writeln();
     }
 
+    /**
+     * @param string $messages
+     */
     public function writeln($messages = '')
     {
         $this->stream->write($messages, true);
+    }
+
+    /**
+     * @param string $filenames,...
+     */
+    public function include(string ...$filenames): void
+    {
+        foreach ($filenames as $filename) {
+            $this->writeln(sprintf('include::%s[leveloffset=+1]', $this->relativePath($filename)));
+        }
+    }
+
+    /**
+     * @param $filename
+     *
+     * @return string
+     */
+    private function relativePath($filename): string
+    {
+        $dir  = explode(DIRECTORY_SEPARATOR, dirname(sprintf('%s/%s', $this->outputPath, $this->filename)));
+        $file = explode(DIRECTORY_SEPARATOR, sprintf('%s/%s', $this->outputPath, $filename));
+
+        while ($dir && $file && ($dir[0] == $file[0])) {
+            array_shift($dir);
+            array_shift($file);
+        }
+
+        return str_repeat('..'.DIRECTORY_SEPARATOR, count($dir)).implode(DIRECTORY_SEPARATOR, $file);
     }
 }

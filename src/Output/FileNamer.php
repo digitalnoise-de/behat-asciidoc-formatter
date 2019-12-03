@@ -13,6 +13,16 @@ use InvalidArgumentException;
  */
 class FileNamer
 {
+    private const INDEX_NAME = 'suites';
+
+    /**
+     * @return string
+     */
+    public function indexName(): string
+    {
+        return sprintf('%s.adoc', self::INDEX_NAME);
+    }
+
     /**
      * @param Suite|FeatureNode|ScenarioInterface $items,...
      *
@@ -37,7 +47,7 @@ class FileNamer
     private function basename($item): string
     {
         if ($item instanceof Suite) {
-            return $this->cleanUp($item->getName());
+            return sprintf('%s/%s', self::INDEX_NAME, $this->cleanUp($item->getName()));
         }
 
         if ($item instanceof FeatureNode) {

@@ -21,7 +21,10 @@ use Behat\Testwork\Suite\GenericSuite;
 use Behat\Testwork\Tester\Result\TestResult;
 use Behat\Testwork\Tester\Setup\Teardown;
 use Digitalnoise\Behat\AsciiDocFormatter\EventListener\FileSplitter;
-use Digitalnoise\Behat\AsciiDocFormatter\Tests\Printer\FakeAsciiDocOutputPrinter;
+use Digitalnoise\Behat\AsciiDocFormatter\Output\AsciiDocOutputPrinter;
+use Exception;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -31,7 +34,12 @@ use PHPUnit\Framework\TestCase;
 class FileSplitterTest extends TestCase
 {
     /**
-     * @var FakeAsciiDocOutputPrinter
+     * @var vfsStreamDirectory
+     */
+    private $outputDirectory;
+
+    /**
+     * @var AsciiDocOutputPrinter
      */
     private $outputPrinter;
 
@@ -53,7 +61,17 @@ class FileSplitterTest extends TestCase
 
         $this->listener->listenEvent($this->formatter, $event, '');
 
-        self::assertEquals('My Suite', $this->outputPrinter->getCurrentFilename());
+        $this->assertFilename('My Suite');
+    }
+
+    /**
+     * @param string $filename
+     *
+     * @throws Exception
+     */
+    private function assertFilename(string $filename): void
+    {
+        self::assertTrue($this->outputDirectory->hasChild($filename), 'File does not exist');
     }
 
     public function test_suite_should_include_features_with_leveloffset()
@@ -72,12 +90,12 @@ class FileSplitterTest extends TestCase
 
         $this->listener->listenEvent($this->formatter, $event, '');
 
-        self::assertEquals(
+        $this->assertContent(
             "ifndef::no-includes[]\n" .
             "include::My Suite/Feature 1[leveloffset=+1]\n" .
             "include::My Suite/Feature 2[leveloffset=+1]\n" .
             "endif::[]\n",
-            $this->outputPrinter->getOutput()
+            'My Suite'
         );
     }
 
@@ -92,6 +110,15 @@ class FileSplitterTest extends TestCase
         return new FeatureNode($title, '', [], null, $scenarios, '', '', '', 1);
     }
 
+    /**
+     * @param string $content
+     * @param string $filename
+     */
+    private function assertContent(string $content, string $filename): void
+    {
+        self::assertEquals($content, $this->outputDirectory->getChild($filename)->getContent());
+    }
+
     public function test_feature_should_be_named_after_feature_and_suite()
     {
         $env   = new InitializedContextEnvironment(new GenericSuite('My Suite', []));
@@ -99,7 +126,7 @@ class FileSplitterTest extends TestCase
 
         $this->listener->listenEvent($this->formatter, $event, '');
 
-        self::assertEquals('My Suite/My Feature', $this->outputPrinter->getCurrentFilename());
+        $this->assertFilename('My Suite/My Feature');
     }
 
     public function test_feature_should_include_scenarios_with_leveloffset()
@@ -115,12 +142,12 @@ class FileSplitterTest extends TestCase
 
         $this->listener->listenEvent($this->formatter, $event, '');
 
-        self::assertEquals(
+        $this->assertContent(
             "ifndef::no-includes[]\n" .
             "include::My Feature/1[leveloffset=+1]\n" .
             "include::My Feature/2[leveloffset=+1]\n" .
             "endif::[]\n",
-            $this->outputPrinter->getOutput()
+            'My Suite/My Feature'
         );
     }
 
@@ -138,7 +165,7 @@ class FileSplitterTest extends TestCase
 
         $this->listener->listenEvent($this->formatter, $event, '');
 
-        self::assertEquals('My Suite/My Feature/My Scenario', $this->outputPrinter->getCurrentFilename());
+        $this->assertFilename('My Suite/My Feature/My Scenario');
     }
 
     public function test_outlines_should_be_named_like_scenarios()
@@ -150,7 +177,7 @@ class FileSplitterTest extends TestCase
 
         $this->listener->listenEvent($this->formatter, $event, '');
 
-        self::assertEquals('My Suite/My Feature/My Outline', $this->outputPrinter->getCurrentFilename());
+        $this->assertFilename('My Suite/My Feature/My Outline');
     }
 
     public function test_examples_should_be_kept_in_the_outlines_file()
@@ -166,14 +193,17 @@ class FileSplitterTest extends TestCase
         $event   = new BeforeScenarioTested($env, $feature, $example);
         $this->listener->listenEvent($this->formatter, $event, '');
 
-        self::assertEquals('My Suite/My Feature/My Outline', $this->outputPrinter->getCurrentFilename());
+        $this->assertFilename('My Suite/My Feature/My Outline');
     }
 
     protected function setUp()
     {
         parent::setUp();
 
-        $this->outputPrinter = new FakeAsciiDocOutputPrinter();
+        $this->outputDirectory = vfsStream::setup();
+
+        $this->outputPrinter = new AsciiDocOutputPrinter();
+        $this->outputPrinter->setOutputPath($this->outputDirectory->url());
 
         $this->formatter = $this->createMock(Formatter::class);
         $this->formatter->method('getOutputPrinter')->willReturn($this->outputPrinter);
