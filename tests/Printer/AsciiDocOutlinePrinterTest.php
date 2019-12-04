@@ -76,11 +76,11 @@ class AsciiDocOutlinePrinterTest extends PrinterTestCase
         return [
             'passed' => [
                 $this->createStepResult(TestResult::PASSED),
-                "| icon:check-circle[]\n| [Step-passed]Peter\n",
+                "| [Example-passed]\n| [Step-passed]Peter\n",
             ],
             'failed' => [
                 $this->createStepResult(TestResult::FAILED),
-                "| icon:exclamation-circle[]\n| [Step-failed]Peter\n",
+                "| [Example-failed]\n| [Step-failed]Peter\n",
             ],
         ];
     }
@@ -116,7 +116,7 @@ class AsciiDocOutlinePrinterTest extends PrinterTestCase
 
         $this->assertOutputArray(
             [
-                "| icon:exclamation-circle[]",
+                "| [Example-failed]",
                 "| [Step-passed]Peter",
                 "| [Step-failed]peter@peterson.test",
             ]
@@ -141,7 +141,7 @@ class AsciiDocOutlinePrinterTest extends PrinterTestCase
 
         $this->assertOutputArray(
             [
-                ".2+| icon:exclamation-circle[]",
+                ".2+| [Example-failed]",
                 "| [Step-passed]Peter",
                 "| [Step-failed]peter@peterson.test",
                 "2+| Hello",
@@ -168,14 +168,13 @@ class AsciiDocOutlinePrinterTest extends PrinterTestCase
 
         $this->assertOutputArray(
             [
-                ".2+| icon:exclamation-circle[]",
+                ".2+| [Example-failed]",
                 "| [Step-failed]Peter",
                 "| [Step-failed]peter@peterson.test",
                 "2+| Exception message",
             ]
         );
     }
-
 
     public function test_print_example_should_print_stdout_and_before_in_the_same_row()
     {
@@ -195,7 +194,7 @@ class AsciiDocOutlinePrinterTest extends PrinterTestCase
 
         $this->assertOutputArray(
             [
-                ".2+| icon:exclamation-circle[]",
+                ".2+| [Example-failed]",
                 "| [Step-passed]Peter",
                 "| [Step-failed]peter@peterson.test",
                 "2+| Hello",

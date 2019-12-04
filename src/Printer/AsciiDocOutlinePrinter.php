@@ -72,13 +72,15 @@ class AsciiDocOutlinePrinter
     {
         $outputPrinter = $formatter->getOutputPrinter();
 
-        list($stdOut, $exceptions) = $this->collectCallResultsOutput($stepResults);
+        [$stdOut, $exceptions] = $this->collectCallResultsOutput($stepResults);
         $hasOutput = count($stdOut) > 0 || count($exceptions) > 0;
         if ($hasOutput) {
             $outputPrinter->write('.2+');
         }
 
-        $outputPrinter->writeln(sprintf('| %s', $this->getIconForResult(new TestResults($stepResults))));
+        $outputPrinter->writeln(
+            sprintf('| %s', $this->resultFormatter->format('', $example->getNodeType(), new TestResults($stepResults)))
+        );
 
         $tokens = $example->getTokens();
         foreach (array_values($tokens) as $index => $token) {
@@ -125,20 +127,6 @@ class AsciiDocOutlinePrinter
     }
 
     /**
-     * @param TestResult $testResult
-     *
-     * @return string
-     */
-    private function getIconForResult(TestResult $testResult): string
-    {
-        if ($testResult->isPassed()) {
-            return 'icon:check-circle[]';
-        }
-
-        return 'icon:exclamation-circle[]';
-    }
-
-    /**
      * @param OutputPrinter $outputPrinter
      * @param int           $cols
      * @param array         $stdOut
@@ -167,5 +155,19 @@ class AsciiDocOutlinePrinter
     public function printFooter(Formatter $formatter)
     {
         $formatter->getOutputPrinter()->writeln("|===");
+    }
+
+    /**
+     * @param TestResult $testResult
+     *
+     * @return string
+     */
+    private function getIconForResult(TestResult $testResult): string
+    {
+        if ($testResult->isPassed()) {
+            return 'icon:check-circle[]';
+        }
+
+        return 'icon:exclamation-circle[]';
     }
 }
